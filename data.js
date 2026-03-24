@@ -113,9 +113,13 @@ const DASHBOARD_DATA = {
         "Yanisa士氣和創造力被傳統環境消耗"
       ],
       stakeholders: [
-        { name: "Yanisa (陈慧英)", role: "副總經理", type: "Champion", notes: "28歲，推動數位轉型" },
-        { name: "Nattaya (เกล)", role: "行銷協調", type: "操作聯絡人", notes: "管理ERP/網站供應商協調" },
+        { name: "Yanisa Danchaivijit (陈慧英)", role: "副總經理", type: "Champion", notes: "28歲，推動數位轉型。Email: yanisa.danchaivijit@gmail.com" },
+        { name: "Nattaya Phakkrua (เกล)", role: "行銷協調", type: "操作聯絡人", notes: "管理ERP/網站供應商協調。Email: nattaya@mitsuya.co.th" },
         { name: "叔叔/老闆", role: "最終決策者", type: "Economic Buyer", notes: "70歲，傳統思維，說要退休10年了還沒退" }
+      ],
+      contacts: [
+        { name: "Yanisa Danchaivijit", phone: "+66622929432", email: "yanisa.danchaivijit@gmail.com", line: null, role: "副總經理 Champion" },
+        { name: "Nattaya Phakkrua", phone: null, email: "nattaya@mitsuya.co.th", line: null, role: "行銷協調" }
       ],
       industry: "汽車零件製造", fit: "HIGH",
       transcript_date: "2026-03-23",
@@ -168,7 +172,11 @@ const DASHBOARD_DATA = {
       pain_points: ["需要MES進行生產支援", "工廠在Samut Sakhon (Omnoi)"],
       stakeholders: [
         { name: "Khun Tan", role: "專案經理", type: "技術聯絡人", notes: "負責生產支援。工廠在Chia Tai Omnoi, Samut Sakhon" },
+        { name: "Pisut Charoenrat (พิสุทธิ์ เจริญรัตน์)", role: "副生產經理", type: "技術決策者", notes: "Department: Production_PP。Email: pisut.ch@chiataigroup.com。CT Connect用戶" },
         { name: "海外顧問", role: "鼎捷產品專家", type: "內部資源", notes: "本週訪泰，行程緊湊" }
+      ],
+      contacts: [
+        { name: "Pisut Charoenrat", phone: null, email: "pisut.ch@chiataigroup.com", line: null, role: "副生產經理" }
       ],
       industry: "農業/種子/製造", fit: "HIGH",
       transcript_date: "2026-03-24",
@@ -191,8 +199,11 @@ const DASHBOARD_DATA = {
       next_action: "Call Wisanu next week on 096-963-0735",
       pain_points: ["對倉庫自動化有興趣但細節不明"],
       stakeholders: [
-        { name: "Wisanu (Nu)", role: "技術生產", type: "聯絡窗口", notes: "之前跟中國業務在展會談過" },
+        { name: "Wisanu Anantapaiboonsiri (Nu)", role: "技術生產", type: "聯絡窗口", notes: "之前跟中國業務在展會談過。Email: wisanuS@standardmanu.com" },
         { name: "老闆", role: "決策者", type: "Economic Buyer", notes: "需在場才能做簡報" }
+      ],
+      contacts: [
+        { name: "Wisanu", phone: "+66963630735", email: "wisanuS@standardmanu.com", line: null, role: "技術生產" }
       ],
       industry: "製造業", fit: "HIGH",
       transcript_date: "2026-03-23",
@@ -214,8 +225,12 @@ const DASHBOARD_DATA = {
       next_action: "Wait for purchasing dept to call",
       pain_points: [],
       stakeholders: [
-        { name: "Suwit", role: "老闆弟弟", type: "執行層", notes: "會說一些中文。IATF 16949認證" },
-        { name: "採購部", role: "評估者", type: "待聯繫", notes: "Suwit說會讓他們打電話給Peter" }
+        { name: "Suwit Boonyaritkit", role: "老闆弟弟", type: "執行層", notes: "會說一些中文。IATF 16949認證。Email: Suwit@sv-sitthinon.com" },
+        { name: "Kasorn Tuptim", role: "採購", type: "待聯繫", notes: "Email: PC1@sv-sitthinon.com" }
+      ],
+      contacts: [
+        { name: "Suwit Boonyaritkit", phone: "+66869806926", email: "Suwit@sv-sitthinon.com", line: null, role: "老闆弟弟" },
+        { name: "Kasorn Tuptim", phone: "+66882059602", email: "PC1@sv-sitthinon.com", line: null, role: "採購" }
       ],
       industry: "汽車零件/貿易", fit: "MEDIUM",
       transcript_date: "2026-03-23",
@@ -237,8 +252,11 @@ const DASHBOARD_DATA = {
       next_action: "Wait for Warehouse Manager callback. DO NOT call Manop again.",
       pain_points: [],
       stakeholders: [
-        { name: "Manop", role: "品質保證部經理", type: "錯誤聯絡人", notes: "對電話感到不耐煩，請勿再打" },
+        { name: "Manop Tonsaktragoon", role: "品質保證部經理", type: "錯誤聯絡人", notes: "對電話感到不耐煩，請勿再打。Email: manop_ton@tlm.co.th" },
         { name: "倉庫/MC經理", role: "目標決策者", type: "待聯繫", notes: "Manop已轉交Peter資訊" }
+      ],
+      contacts: [
+        { name: "Manop Tonsaktragoon", phone: "+66898124076", email: "manop_ton@tlm.co.th", line: null, role: "品質保證部經理 — DO NOT CALL" }
       ],
       industry: "層壓板製造", fit: "HIGH",
       transcript_date: "2026-03-23",
@@ -260,7 +278,10 @@ const DASHBOARD_DATA = {
       next_action: "Send intro email — she expressed interest (สนใจ ส่งเมล์)",
       pain_points: [],
       stakeholders: [
-        { name: "Sirimon", role: "線上業務/打標", type: "聯絡窗口", notes: "名片手寫：สนใจ ส่งเมล์（有興趣，寄郵件）" }
+        { name: "Sirimon Namsai", role: "線上業務/打標", type: "聯絡窗口", notes: "名片手寫：สนใจ ส่งเมล์（有興趣，寄郵件）。Email: sales@daisaemetrology.co.th" }
+      ],
+      contacts: [
+        { name: "Sirimon Namsai", phone: "+66643095439", email: "sales@daisaemetrology.co.th", line: null, role: "線上業務" }
       ],
       industry: "計量/測量設備", fit: "LOW",
       transcript_date: "2026-03-23",
