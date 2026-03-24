@@ -778,22 +778,30 @@
               <div class="space-y-2">
                 <template x-for="(elem,key) in selectedDeal.six_elements" :key="key">
                   <div x-data="{showTip: false}" class="flex items-start gap-3 p-3 rounded-xl transition-colors" :class="(elem.status===true)?'bg-[#02D28C]/5 dark:bg-[#02D28C]/10':(elem.status==='partial')?'bg-[#FFD700]/5 dark:bg-[#FFD700]/10':'bg-[#F5F7FA] dark:bg-[#000864]/50'">
-                    <div class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 cursor-pointer" :class="(elem.status===true)?'bg-[#02D28C]':(elem.status==='partial')?'bg-[#FFD700]':'bg-[#E2E8F0] dark:bg-[#1a2744]'" @click="if(elem.status !== true) showTip = !showTip">
+                    <div class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 cursor-pointer" :class="(elem.status===true)?'bg-[#02D28C]':(elem.status==='partial')?'bg-[#FFD700]':'bg-[#E2E8F0] dark:bg-[#1a2744]'" @click="showTip = !showTip">
                       <i x-show="elem.status===true" data-lucide="check" class="w-3 h-3 text-white"></i>
                       <i x-show="elem.status==='partial'" data-lucide="minus" class="w-3 h-3 text-white"></i>
                     </div>
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2">
                         <span class="text-[12px] font-bold" x-text="{'timeline':'時程 Timeline','budget':'預算 Budget','requirements':'需求 Requirements','decision':'決策流程 Decision Process','competitors':'競爭對手 Competitors','motivation':'動機 Motivation'}[key]"></span>
-                        <!-- Clickable suggestion trigger for gray/amber -->
-                        <button x-show="elem.status !== true" @click="showTip = !showTip" class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md cursor-pointer transition-all" :class="showTip ? 'bg-[#00AFF0] text-white' : 'bg-[#00AFF0]/10 text-[#00AFF0] hover:bg-[#00AFF0]/20'">
-                          <i data-lucide="lightbulb" class="w-3 h-3"></i>
-                          <span x-text="elem.status === 'partial' ? '如何確認' : '下一步'"></span>
+                        <!-- Clickable button for ALL states -->
+                        <button @click="showTip = !showTip" class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md cursor-pointer transition-all"
+                                :class="showTip
+                                  ? 'bg-[#00AFF0] text-white'
+                                  : elem.status === true
+                                    ? 'bg-[#02D28C]/10 text-[#02D28C] hover:bg-[#02D28C]/20'
+                                    : 'bg-[#00AFF0]/10 text-[#00AFF0] hover:bg-[#00AFF0]/20'">
+                          <i :data-lucide="elem.status === true ? 'check-circle' : 'lightbulb'" class="w-3 h-3"></i>
+                          <span x-text="elem.status === true ? '為什麼確認' : elem.status === 'partial' ? '如何確認' : '下一步'"></span>
                         </button>
                       </div>
-                      <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5 leading-relaxed" x-text="elem.detail"></div>
-                      <!-- Coaching suggestion — hidden by default, click to reveal -->
-                      <div x-show="showTip" x-transition.duration.200ms class="mt-2 p-2.5 rounded-lg border border-[#00AFF0]/20 bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10">
+                      <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5 leading-relaxed" x-show="elem.detail" x-text="elem.detail"></div>
+                      <!-- Coaching/evidence panel — hidden by default, click to reveal -->
+                      <div x-show="showTip" x-transition.duration.200ms class="mt-2 p-2.5 rounded-lg border"
+                           :class="elem.status === true
+                             ? 'border-[#02D28C]/20 bg-[#02D28C]/5 dark:bg-[#02D28C]/10'
+                             : 'border-[#00AFF0]/20 bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10'">
                         <div class="text-[11px] text-[#333333] dark:text-[#E2E8F0] leading-relaxed" x-text="sixSuggestion(key, selectedDeal)"></div>
                       </div>
                     </div>
@@ -1247,35 +1255,44 @@
         const isPartial = elem && elem.status === 'partial';
         const hasStakeholders = deal.stakeholders && deal.stakeholders.length > 0;
 
+        const isConfirmed = elem && elem.status === true;
+
         const suggestions = {
           timeline: {
+            confirmed: '✅ 已確認Go-Live時程。確認依據：客戶已明確提出上線日期或季度目標，且此時程與商業事件綁定（如新廠投產、會計年度、法規期限）。持續追蹤：時程是否有變動？是否有外部因素可能延後？',
             unknown: '問客戶：「如果今天決定了，您期望系統什麼時候上線運作？」把時程連結到商業事件：新廠投產日、會計年度、法規期限、老系統合約到期。沒有Go-Live日期＝沒有急迫性。',
             partial: '已有粗略時程。下一步：確認具體季度或月份。問：「有什麼外部壓力讓您一定要在那個時間點之前完成？」將模糊的「今年」轉為具體的「Q3前上線」。'
           },
           budget: {
+            confirmed: '✅ 已確認預算。確認依據：客戶已有正式預算編列或已討論具體金額範圍。持續追蹤：預算核准流程是否順利？是否有被砍預算的風險？分階段報價是否被接受？',
             unknown: '不要直接問預算（泰國文化中太直接）。改用分階段報價試探：「一般這類專案，客戶分Phase 1（核心ERP）和Phase 2（MES/WMS）投入。Phase 1大約在X到Y之間，您覺得這個方向可行嗎？」從對手報價推測預算也是好方法。',
             partial: '客戶已在考慮預算。下一步：提出具體的分階段報價方案，讓客戶看到Phase 1最低投入門檻。問：「預算需要哪個層級核准？流程大概多久？」搞清楚預算審批鏈。'
           },
           requirements: {
+            confirmed: '✅ 已確認需求。確認依據：客戶能清楚描述具體痛點，且痛點已連結到「不得不做的理由」。持續追蹤：需求範圍是否有擴大或縮小？有沒有新的痛點浮現？需求是否已轉化為具體的系統功能規格？',
             unknown: '用情境問題挖痛點：「目前你們怎麼管理[庫存/生產/品質]？最困擾的是什麼？」重點是找到真正的痛苦（Pain），不是小困擾（Frustration）。痛苦＝來自外部壓力（老闆要的報表做不出來、訂單遲交）；困擾＝只是不方便。把個人痛苦擴大到組織影響：「這個問題造成多少損失？多常發生？」',
             partial: '痛點已浮現。下一步：用痛苦鏈（Pain Chain）連結跨部門影響。問：「這個問題除了影響[倉庫]，對[生產]和[財務]有什麼連帶影響？」讓客戶自己說出「我們需要一套系統」。'
           },
           decision: {
+            confirmed: '✅ 已確認決策流程。確認依據：已識別守門員、決策者、核決者三個角色，且了解內部審批流程。持續追蹤：決策者的態度是否有變化？有沒有新的利害關係人加入？核決者是否已知道這個專案？',
             unknown: '需要搞清楚三個角色：守門員（誰接待你？）、決策者（誰評估方案？）、核決者（誰簽字？）。問：「這個專案如果要推動，需要哪些部門參與？最後由誰拍板？」在泰國，不要直接問層級——從對話中觀察權力結構。',
             partial: '已知部分角色。下一步：確認核決者（最終簽字的人）是誰，以及你能否直接或間接接觸到他。問現有窗口：「老闆通常怎麼做這類決定？需要看什麼資料？」然後準備讓窗口帶進去的材料。'
           },
           competitors: {
-            unknown: '問：「目前有在看其他供應商嗎？之前有沒有評估過類似系統？」查他們現在用什麼（Oracle/SAP/金蝶/用友/Excel/紙本）。Eddie說：知己知彼，從對手推測預算。如果對手已報價，你必須知道報了多少。',
+            confirmed: '✅ 已確認競爭狀況。確認依據：已知客戶正在評估的所有供應商、每家的進展階段、以及客戶對各家的評價。持續追蹤：有沒有新的競爭者出現？對手是否已報價？客戶對鼎捷 vs 對手的SWOT認知是否有變化？',
+            unknown: '問：「目前有在看其他供應商嗎？之前有沒有評估過類似系統？」查他們現在用什麼（Oracle/SAP/金蝶/用友/Excel/紙本）。知己知彼，從對手推測預算。如果對手已報價，你必須知道報了多少。',
             partial: '已知部分競爭情況。下一步：搞清楚每個對手進展到哪一步——只是在談？已經demo？已經報價？問：「您覺得他們的方案最大的優點和缺點是什麼？」用C139的SWOT分析定位鼎捷差異化優勢。'
           },
           motivation: {
-            unknown: '需要找到「不得不做的理由」。Eddie的四大經典理由：(1)新建工廠無系統 (2)人工成本過高 (3)內控漏洞（偷竊/物料遺失）(4)二代接班。問：「如果不做這件事，最壞的情況會是什麼？」如果客戶說不出來，商機可能不是真的。',
+            confirmed: '✅ 已確認動機。確認依據：Level 1（不得不做）和 Level 2（不得不跟鼎捷做）都已明確。持續追蹤：動機是否仍然強烈？有沒有內部變化削弱急迫性？Level 2 是否持續強化（客戶越來越認同鼎捷）？',
+            unknown: '需要找到「不得不做的理由」。四大經典理由：(1)新建工廠無系統 (2)人工成本過高 (3)內控漏洞（偷竊/物料遺失）(4)二代接班。問：「如果不做這件事，最壞的情況會是什麼？」如果客戶說不出來，商機可能不是真的。',
             partial: '已有Level 1動機（不得不做）。下一步：建立Level 2（不得不跟鼎捷做）。問自己：客戶為什麼不選SAP/Oracle？準備鼎捷的差異化論述：製造業專精、在地服務、性價比、分階段導入、BOI合規。Level 1沒有Level 2＝對手隨時能搶走。'
           }
         };
 
         const s_key = suggestions[key];
         if(!s_key) return '';
+        if(isConfirmed) return s_key.confirmed || '';
         return isPartial ? s_key.partial : s_key.unknown;
       },
 
