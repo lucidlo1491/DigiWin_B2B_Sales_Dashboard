@@ -44,6 +44,7 @@ CHUNK_OVERLAP_SECONDS = 60  # Overlap between chunks
 CONTACTS_PATH = os.path.expanduser("~/.transcribe/contacts.json")
 COST_LOG_PATH = os.path.expanduser("~/.transcribe/cost_log.json")
 UPLOAD_CACHE_PATH = os.path.expanduser("~/.transcribe/upload_cache.json")
+GLOSSARY_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "transcribe_glossary.json")
 
 DEFAULT_SPEAKER = "Peter Lo"
 
@@ -248,6 +249,34 @@ def upload_to_gemini(filepath):
     raise RuntimeError(f"File upload did not become ACTIVE: {uploaded.name}")
 
 
+def _load_glossary_for_prompt():
+    """Load domain glossary from external JSON file for injection into prompt."""
+    try:
+        with open(GLOSSARY_PATH) as f:
+            glossary = json.load(f)
+        terms = glossary.get("prompt_terms", [])
+        if terms:
+            # Group into lines of ~5 terms each
+            lines = []
+            for i in range(0, len(terms), 5):
+                chunk = terms[i:i+5]
+                lines.append("- " + ", ".join(chunk))
+            return "Domain glossary — use these EXACT spellings when you hear these terms:\n" + "\n".join(lines)
+    except Exception:
+        pass
+    return ""
+
+
+def _load_glossary_for_qa():
+    """Load QA corrections from external JSON file."""
+    try:
+        with open(GLOSSARY_PATH) as f:
+            glossary = json.load(f)
+        return glossary.get("qa_corrections", {})
+    except Exception:
+        return {}
+
+
 def build_prompt(language, speakers_text, duration_min, offset_min=0):
     """Build the transcription prompt."""
     lang_instruction = {
@@ -276,18 +305,7 @@ Timestamp rules:
 Format:
 [HH:MM:SS] **Speaker Name:** their complete utterance until the next person speaks
 
-Domain glossary — use these EXACT spellings when you hear these terms:
-- Fixed asset (NOT "Free asset"), Bill of Materials / BOM, Work order, Subcontract
-- Production line, Quality control / QC, Inventory, Warehouse, Dispatch
-- IoT, eMES, ERP, WMS, WCS, AGV, AMR, SFT, APS, MES, MRP
-- ROI, KPI, BOI, EPE, NDA, IATF, ISO
-- Pallet (NOT "Pellet"), Conveyor, Barcode, Throughput, Downtime
-- Scrap, Rework, Batch, Lot, Forklift, Capacity, Yield
-- Go-live, Phase 1 / Phase 2, Implementation, Deployment
-- Cost center, Profit center, Overhead, Unit cost, BOM cost
-- Cycle time, Lead time, Takt time, OEE, MTBF, MTTR
-- Pick & Pack, FIFO, LIFO, Safety stock, Reorder point
-- Digiwin (鼎捷), Xiangtian (象田), HAIROBOTICS, iRAYPLE, TUSKROBOTS
+{_load_glossary_for_prompt()}
 
 Rules:
 - Transcribe the ENTIRE recording from beginning to end
@@ -383,41 +401,8 @@ def validate_transcript(text, audio_duration_sec):
         if gap > 120:
             issues.append(f"COVERAGE GAP: Last timestamp at {last_ts // 60}:{last_ts % 60:02d}, audio is {audio_duration_sec // 60:.0f}:{int(audio_duration_sec) % 60:02d} ({gap:.0f}s missing)")
 
-    # 5. Domain glossary — catch common Gemini mishearings of ERP/MES/manufacturing terms
-    KNOWN_TERMS = {
-        # Correct term → common Gemini errors
-        "Fixed asset": ["Free asset", "Freeze asset", "Fix asset"],
-        "Fixed cost": ["Free cost", "Freeze cost"],
-        "Bill of Materials": ["Bill of Material", "Bill of Minerals"],
-        "BOM": ["BOMB", "BOOM"],
-        "Work order": ["Walk order", "Word order"],
-        "Subcontract": ["Sub contract", "Subtract"],
-        "Production line": ["Production lying", "Production lion"],
-        "Quality control": ["Quality controlled", "Quality controller"],
-        "Inventory": ["In ventory", "Inventor"],
-        "Warehouse": ["War house", "Wear house"],
-        "Dispatch": ["This patch", "Dis patch"],
-        "IoT": ["I OT", "IOT", "I.O.T"],
-        "eMES": ["E-MES", "EMES", "e mess", "E mess"],
-        "ERP": ["E.R.P", "EAP"],
-        "WMS": ["W.M.S", "WMF"],
-        "AGV": ["A.G.V", "ABV", "AGB"],
-        "SFT": ["S.F.T", "SFC"],
-        "APS": ["A.P.S", "APC"],
-        "ROI": ["R.O.I", "ROY"],
-        "KPI": ["K.P.I", "KBI"],
-        "Pallet": ["Pellet", "Palette"],
-        "Conveyor": ["Convey", "Con vayer"],
-        "Barcode": ["Bar code", "Bark code"],
-        "Throughput": ["Through put", "Threw put"],
-        "Downtime": ["Down time", "Dawn time"],
-        "Scrap": ["Scrub", "Strap"],
-        "Rework": ["Re work", "Reward"],
-        "Batch": ["Badge", "Bash"],
-        "Forklift": ["Fork lift", "Four clip"],
-        "BOI": ["B.O.I", "BOY", "Boy"],
-        "EPE": ["E.P.E", "EPP"],
-    }
+    # 5. Domain glossary — catch common Gemini mishearings (loaded from transcribe_glossary.json)
+    KNOWN_TERMS = _load_glossary_for_qa()
 
     term_warnings = []
     text_lower = text.lower()
