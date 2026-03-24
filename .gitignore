@@ -1,0 +1,7 @@
+# Generated/temp files
+download.html
+refresh.log
+raw_*.json
+*.pyc
+__pycache__/
+.DS_Store

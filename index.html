@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>if(localStorage.getItem('dw_dark')==='true')document.documentElement.classList.add('dark')</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digiwin — Sales Pipeline</title>
+  <meta name="description" content="Digiwin Thailand Sales Pipeline Dashboard — Track deals, commitments, and revenue for B2B ERP sales.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="data.js"></script>
+  <script>
+    tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{display:['Noto Sans','Noto Sans Thai','sans-serif'],mono:['JetBrains Mono','monospace']}}}}
+  </script>
+  <style>
+    [x-cloak]{display:none!important}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    body{font-family:'Noto Sans','Noto Sans Thai',sans-serif;font-size:16px;line-height:1.6;color:#333333}
+    .dark body{color:#ffffff}
+
+    /* === ATMOSPHERE — Digiwin Brand === */
+    .bg-mesh-light{background:#F5F7FA}
+    .bg-mesh-dark{background:linear-gradient(135deg,#000432 0%,#000864 50%,#001080 100%)}
+
+    /* Digiwin flat cards — no glassmorphism */
+    .glass{background:#ffffff;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+    .dark .glass{background:#001080;box-shadow:0 4px 24px rgba(0,0,0,0.15)}
+
+    /* Digiwin brand stage colors */
+    :root{
+      --stage-e:#644CE6;--stage-d:#00E6FF;--stage-c2:#00AFF0;
+      --stage-c1:#003CC8;--stage-b:#FFD700;--stage-a:#02D28C;
+    }
+    .stage-e{--c:var(--stage-e)}.stage-d{--c:var(--stage-d)}.stage-c2{--c:var(--stage-c2)}
+    .stage-c1{--c:var(--stage-c1)}.stage-b{--c:var(--stage-b)}.stage-a{--c:var(--stage-a)}
+
+    /* === CARDS === */
+    .deal-card{
+      border-left:3px solid var(--c,#644CE6);
+      transition:transform 0.3s ease,box-shadow 0.3s ease,border-color 0.3s ease;
+      cursor:grab;-webkit-user-select:none;user-select:none;
+    }
+    .deal-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.08);border-color:#00AFF0}
+    .deal-card:active{cursor:grabbing}
+
+    /* Digiwin alert borders */
+    .alert-border-red{border-left:4px solid #FF6E82!important}
+    .alert-border-amber{border-left:4px solid #FFD700!important}
+
+    /* === ANIMATIONS — scroll fade-in === */
+    @keyframes fadeSlideIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .animate-in{animation:fadeSlideIn 0.4s ease both}
+    .kpi-animate{animation:countUp 0.4s ease both}
+    .stagger-1{animation-delay:0.07s}
+    .stagger-2{animation-delay:0.14s}
+    .stagger-3{animation-delay:0.21s}
+    .stagger-4{animation-delay:0.28s}
+    .stagger-5{animation-delay:0.35s}
+    .stagger-6{animation-delay:0.42s}
+
+    /* === SORTABLE === */
+    [data-stage]>div{touch-action:none}
+    .sortable-ghost{opacity:0.3}
+    .sortable-chosen{box-shadow:0 0 0 2px rgba(0,175,240,0.5)!important;transform:scale(1.02)}
+    .sortable-drag{box-shadow:0 20px 40px -12px rgba(0,0,0,0.25)!important}
+
+    /* === KPI Numbers === */
+    .kpi{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+
+    /* === Section Labels (JetBrains Mono uppercase) === */
+    .section-label{
+      font-family:'JetBrains Mono',monospace;
+      text-transform:uppercase;
+      font-size:11px;
+      font-weight:500;
+      letter-spacing:0.1em;
+      color:#0369A1;
+    }
+    .dark .section-label{color:#00AFF0}
+
+    /* === Tooltip === */
+    .dw-tip-trigger{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:18px;height:18px;border-radius:50%;
+      font-size:11px;font-weight:700;line-height:1;
+      color:#334155;background:#F5F7FA;border:1px solid #E2E8F0;
+      cursor:help;user-select:none;flex-shrink:0;
+      transition:color .15s,background .15s,border-color .15s;
+    }
+    .dark .dw-tip-trigger{background:#001080;border-color:#1a2744;color:#cbd5e1}
+    .dw-tip-trigger:hover{color:#00AFF0;border-color:#00AFF0;background:#e0f4ff}
+    .dark .dw-tip-trigger:hover{color:#00E6FF;border-color:#00AFF0;background:#000864}
+    /* 44px minimum touch target via invisible padding */
+    .dw-tip-touch{position:relative}
+    .dw-tip-touch::before{content:'';position:absolute;inset:-13px;border-radius:50%;pointer-events:none}
+    .dw-tip-bubble{
+      position:absolute;z-index:200;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+      width:max-content;max-width:280px;padding:10px 14px;
+      border-radius:12px;font-size:12px;font-weight:500;line-height:1.5;
+      background:#000864;color:#E2E8F0;box-shadow:0 8px 24px -4px rgba(0,0,0,0.3);
+      pointer-events:auto;
+    }
+    .dw-tip-bubble::after{
+      content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+      border:6px solid transparent;border-bottom-color:#000864;
+    }
+    /* Alignment variants for edge cases */
+    .dw-tip-right{left:auto;right:0;transform:none}
+    .dw-tip-right::after{left:auto;right:12px;transform:none}
+    .dw-tip-left{left:0;right:auto;transform:none}
+    .dw-tip-left::after{left:12px;right:auto;transform:none}
+    /* Ensure tooltips in scrollable containers aren't clipped */
+    .dw-tip-touch{z-index:60}
+
+    /* === Scrollbar === */
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+    .dark ::-webkit-scrollbar-thumb{background:#1a2744}
+
+    /* === Quota Arc === */
+    .quota-ring{transform:rotate(-90deg)}
+    .quota-ring circle{fill:none;stroke-linecap:round}
+
+    /* === Value Input === */
+    .value-input{background:transparent;outline:none;border:none;font-family:'JetBrains Mono',monospace;text-align:right;width:100%}
+    .value-input::placeholder{color:#334155}
+    .value-input:focus{outline:2px solid #00AFF0;outline-offset:2px;border-radius:6px}
+
+    /* === Pipeline bar === */
+    .pipeline-bar-segment{transition:width 0.5s ease;min-width:2px}
+
+    /* === Buttons === */
+    .btn-primary{
+      background:linear-gradient(135deg,#00AFF0,#003CC8);
+      color:#ffffff;border-radius:12px;padding:16px 32px;
+      font-weight:600;transition:all 0.3s ease;border:none;cursor:pointer;
+    }
+    .btn-primary:hover{box-shadow:0 8px 24px rgba(0,175,240,0.3);transform:translateY(-1px)}
+    .btn-ghost{
+      background:transparent;border:1px solid #000864;color:#000864;
+      border-radius:12px;padding:16px 32px;font-weight:600;transition:all 0.3s ease;cursor:pointer;
+    }
+    .dark .btn-ghost{border-color:#ffffff;color:#ffffff}
+
+    /* === Dark mode grain texture === */
+    .dark .grain-overlay{
+      position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
+      opacity:0.03;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* #8 — bottom nav spacing on mobile */
+    @media(max-width:1023px){
+      main{padding-bottom:80px}
+    }
+
+    /* === Headings === */
+    h1,h2,h3,h4,h5,h6{font-family:'Noto Sans','Noto Sans Thai',sans-serif;font-weight:600;line-height:1.3;color:#000864}
+    .dark h1,.dark h2,.dark h3,.dark h4,.dark h5,.dark h6{color:#ffffff}
+
+    /* === Badge/Tag style (JetBrains Mono) === */
+    .tag-label{
+      font-family:'JetBrains Mono',monospace;
+      text-transform:uppercase;
+      letter-spacing:0.1em;
+      font-size:11px;
+      font-weight:500;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen transition-colors duration-300" :class="darkMode ? 'text-white' : 'bg-[#F5F7FA] text-[#333333]'" x-data="dashboard()" x-cloak>
+
+  <!-- Dark mode grain texture -->
+  <div class="grain-overlay" x-show="darkMode"></div>
+
+  <!-- Dark mode body gradient (applied via style binding) -->
+  <div x-show="darkMode" class="fixed inset-0 -z-10" style="background:linear-gradient(135deg,#000432 0%,#000864 50%,#001080 100%)"></div>
+  <div x-show="!darkMode" class="fixed inset-0 -z-10 bg-[#F5F7FA]"></div>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="bg-white dark:bg-[#001080] border-b border-[#E2E8F0] dark:border-[#1a2744] px-4 lg:px-8 py-3 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-[1440px] mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00AFF0] to-[#003CC8] flex items-center justify-center shadow-lg shadow-[#00AFF0]/20">
+            <span class="text-white text-[11px] font-extrabold tracking-tight">DW</span>
+          </div>
+          <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#02D28C] rounded-full border-2 border-white dark:border-[#000864]"></div>
+        </div>
+        <div>
+          <h1 class="text-[15px] font-bold tracking-tight" x-text="today"></h1>
+          <div class="flex items-center gap-2 mt-0.5">
+            <template x-if="overdue_count > 0">
+              <span class="inline-flex items-center gap-1 tag-label px-2 py-0.5 rounded-full bg-[#FF6E82]/10 text-[#FF6E82] dark:text-[#FF6E82] border-l-4 border-l-[#FF6E82]">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#FF6E82] animate-pulse"></span>
+                <span x-text="overdue_count + ' overdue'"></span>
+              </span>
+            </template>
+            <template x-if="dealsWithoutValue > 0">
+              <span class="inline-flex items-center gap-1 tag-label px-2 py-0.5 rounded-full bg-[#FFD700]/10 text-[#b8960c] dark:text-[#FFD700]">
+                <span x-text="dealsWithoutValue + ' deals need ฿ values'"></span>
+              </span>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-5">
+        <div class="hidden md:flex items-center gap-5 text-right">
+          <div>
+            <div class="section-label flex items-center gap-1">Weighted
+              <span x-data="dwTip('加權管線值：依各階段成交機率加權計算。E=5%, D=10%, C2=25%, C1=50%, B=75%, A=90%')" class="dw-tip-touch relative inline-flex items-center">
+                <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble dw-tip-right" x-text="text" x-cloak></div>
+              </span>
+            </div>
+            <div class="kpi text-xl font-bold kpi-animate" :class="weightedPipeline > 0 ? 'text-[#02D28C]' : 'text-slate-500'" x-text="weightedPipeline > 0 ? fmtB(weightedPipeline) : '—'"></div>
+          </div>
+          <div class="w-px h-8 bg-[#E2E8F0] dark:bg-[#1a2744]"></div>
+          <div>
+            <div class="section-label flex items-center gap-1">Pipeline
+              <span x-data="dwTip('管線總值：所有案件金額加總（未加權）')" class="dw-tip-touch relative inline-flex items-center">
+                <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble dw-tip-right" x-text="text" x-cloak></div>
+              </span>
+            </div>
+            <div class="kpi text-xl font-bold kpi-animate stagger-1" x-text="totalPipeline > 0 ? fmtB(totalPipeline) : '—'"></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] kpi text-[#444444] dark:text-[#cbd5e1]" x-text="refresh_time"></span>
+          <a href="wiki.html" class="w-8 h-8 rounded-xl bg-[#F5F7FA] dark:bg-[#000864] flex items-center justify-center cursor-pointer hover:bg-[#00AFF0]/10 dark:hover:bg-[#00AFF0]/20 transition-all duration-200 active:scale-95" aria-label="術語百科 Wiki" title="術語百科">
+            <i data-lucide="book-open" class="w-4 h-4 text-[#444444] dark:text-[#cbd5e1]"></i>
+          </a>
+          <button @click="darkMode=!darkMode;document.documentElement.classList.toggle('dark');localStorage.setItem('dw_dark',darkMode)"
+                  class="w-8 h-8 rounded-xl bg-[#F5F7FA] dark:bg-[#000864] flex items-center justify-center cursor-pointer hover:bg-[#00AFF0]/10 dark:hover:bg-[#00AFF0]/20 transition-all duration-200 active:scale-95" aria-label="Toggle theme">
+            <i data-lucide="sun" class="w-4 h-4 dark:hidden text-[#FFD700]"></i>
+            <i data-lucide="moon" class="w-4 h-4 hidden dark:block text-[#00E6FF]"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div x-show="auth_warning" x-transition class="mt-2 tag-label text-[#FF6E82] bg-[#FF6E82]/5 dark:bg-[#FF6E82]/10 rounded-xl px-4 py-2 flex items-center gap-2 max-w-[1440px] mx-auto">
+      <i data-lucide="alert-triangle" class="w-3.5 h-3.5 flex-shrink-0"></i>
+      <span x-text="auth_warning"></span>
+    </div>
+  </header>
+
+  <main class="max-w-[1440px] mx-auto px-4 lg:px-8 py-6 relative z-10">
+
+    <!-- #7 — Week 1 Pipeline Build contextual banner -->
+    <div x-show="data.target.ytd_closed === 0 && dealsWithValue < 3" class="mb-5 animate-in">
+      <div class="glass rounded-2xl border border-[#00AFF0]/40 dark:border-[#00AFF0]/40 p-4 bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10" style="border-radius:16px">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-[#00AFF0]/10 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="rocket" class="w-4 h-4 text-[#00AFF0]"></i>
+          </div>
+          <div>
+            <div class="text-[13px] font-bold text-[#00AFF0] dark:text-[#00E6FF]">Week 1 Pipeline Build</div>
+            <div class="text-[11px] text-[#00AFF0]/70 dark:text-[#00E6FF]/70 mt-0.5">Focus on deal creation and discovery calls. Revenue values will fill in as proposals go out.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ MAIN GRID ═══════════ -->
+    <!-- #1 — On mobile, Hit List appears FIRST (order-1), Pipeline second (order-2). On desktop, Hit List left, Pipeline right -->
+    <div class="grid xl:grid-cols-[300px_1fr] gap-6">
+
+      <!-- LEFT: NEXT ACTIONS (Hit List) — #1 mobile-first -->
+      <section class="animate-in stagger-1 order-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-7 h-7 rounded-lg bg-[#FFD700]/10 flex items-center justify-center">
+            <i data-lucide="zap" class="w-4 h-4 text-[#FFD700]"></i>
+          </div>
+          <h2 class="text-[15px] font-bold tracking-tight">Next Actions</h2>
+          <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1] ml-auto" x-text="data.hit_list.length + ' actions'"></span>
+        </div>
+        <div class="space-y-2">
+          <template x-for="item in data.hit_list" :key="item.rank">
+            <div class="glass rounded-xl border border-[#E2E8F0] dark:border-[#1a2744] p-3.5 cursor-pointer transition-all duration-300 hover:border-[#00AFF0] dark:hover:border-[#00AFF0] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] active:scale-[0.99]"
+                 :class="item.rank <= 2 ? 'alert-border-red' : item.rank <= 4 ? 'alert-border-amber' : ''"
+                 @click="item._expanded = !item._expanded" style="border-radius:16px">
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold"
+                     :class="item.rank <= 2 ? 'bg-[#FF6E82] text-white' : item.rank <= 4 ? 'bg-[#FFD700] text-[#000864]' : 'bg-[#E2E8F0] dark:bg-[#1a2744] text-[#444444] dark:text-[#cbd5e1]'"
+                     x-text="item.rank"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13px] font-semibold leading-snug" x-text="item.action"></div>
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <span class="text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="item.company"></span>
+                    <span class="inline-flex items-center gap-0.5 tag-label px-1.5 py-0.5 rounded-md"
+                          :class="{'bg-[#FF6E82]/10 text-[#FF6E82]': item.type==='call', 'bg-[#00AFF0]/10 text-[#00AFF0]': item.type==='email', 'bg-[#644CE6]/10 text-[#644CE6]': item.type==='computer'}"
+                          x-text="item.type"></span>
+                    <span class="kpi text-[11px] font-bold" :class="getDealValue(item.company) ? 'text-[#02D28C]' : 'text-slate-500'"
+                          x-text="getDealValue(item.company) ? fmtB(getDealValue(item.company)) : ''"></span>
+                  </div>
+                </div>
+              </div>
+              <div x-show="item._expanded" x-transition.duration.200ms class="mt-3 text-[11px] leading-relaxed p-2.5 rounded-lg bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 text-[#003CC8] dark:text-[#00E6FF] border border-[#00AFF0]/30 dark:border-[#00AFF0]/30">
+                <span class="font-bold">WHY:</span> <span x-text="item.why"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <!-- RIGHT: TABBED CONTENT — #1 on mobile this comes second -->
+      <section class="animate-in stagger-2 order-2">
+        <!-- Desktop inline tabs (hidden on mobile — replaced by bottom nav) -->
+        <div class="hidden lg:flex gap-1 p-1 rounded-xl glass border border-[#E2E8F0] dark:border-[#1a2744] mb-5" style="border-radius:16px">
+          <template x-for="tab in ['pipeline','i_owe','they_owe','all_deals']" :key="tab">
+            <button @click="activeTab=tab"
+                    class="flex-1 px-3 py-2.5 text-[12px] font-bold rounded-lg transition-all duration-300 cursor-pointer"
+                    :class="activeTab===tab ? 'bg-gradient-to-r from-[#00AFF0] to-[#003CC8] text-white shadow-md' : 'text-[#444444] dark:text-[#cbd5e1] hover:text-[#000864] dark:hover:text-white'">
+              <span x-text="tabLabels[tab]"></span>
+            </button>
+          </template>
+        </div>
+
+        <!-- #2 — DEAL-COUNT PIPELINE BAR (replaces 4 KPI boxes) -->
+        <div class="glass border border-[#E2E8F0] dark:border-[#1a2744] p-5 lg:p-6 mb-5 animate-in" style="border-radius:16px">
+          <!-- Deal-count horizontal stacked bar — always visible -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="section-label flex items-center gap-1">Pipeline by Stage
+                <span x-data="dwTip('鼎捷銷售漏斗六階段：E(初步接觸) → D(需求確認) → C2(提案中) → C1(評估中) → B(議價中) → A(即將簽約)')" class="dw-tip-touch relative inline-flex items-center">
+                  <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                  <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble dw-tip-left" x-text="text" x-cloak></div>
+                </span>
+              </div>
+              <div class="text-[11px] kpi text-[#444444] dark:text-[#cbd5e1]" x-text="data.deals.length + ' deals total'"></div>
+            </div>
+            <!-- Deal COUNT bar — works even with null values -->
+            <div class="h-10 rounded-lg overflow-hidden flex bg-[#F5F7FA] dark:bg-[#000864]">
+              <template x-for="stage in stages" :key="stage">
+                <div class="pipeline-bar-segment h-full flex items-center justify-center text-[11px] font-bold text-white relative group cursor-default"
+                     :style="'width:' + stageDealPercent(stage) + '%;background:' + stageColor(stage)"
+                     x-show="dealsInStage(stage).length > 0">
+                  <span x-text="stage + ' ' + dealsInStage(stage).length" x-show="stageDealPercent(stage) > 10" :class="''"></span>
+                  <!-- Tooltip -->
+                  <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"
+                       :style="'background:' + stageColor(stage)" :class="['D','B'].includes(stage) ? 'text-[#000864]' : 'text-white'" x-text="stage + ': ' + dealsInStage(stage).length + ' deals' + (stageValue(stage) > 0 ? ' / ' + fmtB(stageValue(stage)) : '')"></div>
+                </div>
+              </template>
+            </div>
+            <!-- Stage legend with deal counts -->
+            <div class="flex flex-wrap gap-3 mt-2">
+              <template x-for="stage in stages" :key="stage">
+                <div class="flex items-center gap-1.5 text-[11px]">
+                  <div class="w-2.5 h-2.5 rounded-sm" :style="'background:' + stageColor(stage)"></div>
+                  <span class="font-bold" x-text="stage"></span>
+                  <span class="kpi text-[#444444] dark:text-[#cbd5e1]" x-text="dealsInStage(stage).length + ' deals'"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Decomposition row -->
+          <div class="flex items-center gap-2 text-[12px] kpi text-[#444444] dark:text-[#cbd5e1] mb-4">
+            <span x-text="data.deals.length + ' deals'"></span>
+            <span class="text-[#E2E8F0] dark:text-[#4a6080]">x</span>
+            <span x-text="dealsWithValue > 0 ? 'avg ฿' + ((totalPipeline / dealsWithValue) / 1e6).toFixed(1) + 'M' : 'avg --'"></span>
+            <span class="text-[#E2E8F0] dark:text-[#4a6080]">=</span>
+            <span class="font-bold" :class="totalPipeline > 0 ? 'text-[#000864] dark:text-white' : 'text-[#444444]'" x-text="totalPipeline > 0 ? fmtB(totalPipeline) + ' pipeline' : '-- pipeline'"></span>
+          </div>
+
+          <!-- Monetary bullet graph — only show when 3+ deals have values (#2) -->
+          <div x-show="dealsWithValue >= 3" class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="section-label">Revenue Pipeline</div>
+              <div class="text-[11px] kpi text-[#444444] dark:text-[#cbd5e1]" x-text="totalPipeline > 0 ? fmtB(totalPipeline) + ' total' : ''"></div>
+            </div>
+            <div class="h-8 rounded-lg overflow-hidden flex bg-[#F5F7FA] dark:bg-[#000864]">
+              <template x-for="stage in stages" :key="stage">
+                <div class="pipeline-bar-segment h-full flex items-center justify-center text-[11px] font-bold text-white relative group cursor-default"
+                     :style="'width:' + stagePercent(stage) + '%;background:' + stageColor(stage)"
+                     x-show="stageValue(stage) > 0">
+                  <span class="hidden lg:inline" x-text="stage + ' ' + fmtB(stageValue(stage))" x-show="stagePercent(stage) > 8" :class="''"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- #7 — empty state when no values -->
+          <div x-show="dealsWithValue < 3" class="p-3 rounded-xl bg-[#FFD700]/5 dark:bg-[#FFD700]/10 border border-[#FFD700]/30 dark:border-[#FFD700]/20 text-[12px]">
+            <span class="text-[#b8960c] dark:text-[#FFD700] font-semibold" x-text="dealsWithoutValue + '/' + data.deals.length + ' deals need amounts'"></span>
+            <span class="text-[#b8960c]/70 dark:text-[#FFD700]/70 ml-1">- Click Edit Values to enter deal sizes</span>
+          </div>
+
+          <!-- Deal Values Quick-Edit Grid -->
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="section-label">Deal Values</div>
+              <button @click="showValueEditor = !showValueEditor" class="text-[11px] font-bold text-[#00AFF0] hover:text-[#003CC8] dark:hover:text-[#00E6FF] cursor-pointer transition-colors" x-text="showValueEditor ? 'Hide Editor' : 'Edit Values'"></button>
+            </div>
+            <div x-show="showValueEditor" x-transition.duration.200ms>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <template x-for="deal in data.deals" :key="deal.id">
+                  <div class="flex items-center gap-3 p-2.5 rounded-xl border border-[#E2E8F0]/30 dark:border-[#1a2744]/30 hover:border-[#00AFF0] dark:hover:border-[#00AFF0] transition-colors duration-300">
+                    <div class="w-2.5 h-8 rounded-full flex-shrink-0" :style="'background:' + stageColor(deal.stage)"></div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-[12px] font-bold truncate" x-text="deal.company"></div>
+                      <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="deal.stage + ' Stage'"></div>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0 w-[140px]">
+                      <span class="text-[12px] text-[#444444] dark:text-[#cbd5e1] kpi">฿</span>
+                      <input type="text" class="value-input kpi text-[14px] font-bold px-2 py-1"
+                             :class="deal.value ? '' : 'text-[#FFD700]'"
+                             :value="deal.value ? (deal.value/1e6).toFixed(1) + 'M' : ''"
+                             :placeholder="'Enter ฿'"
+                             @focus="$event.target.value = deal.value ? (deal.value/1e6).toFixed(2) : ''"
+                             @blur="saveDealValue(deal, $event.target.value)"
+                             @keydown.enter="$event.target.blur()">
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="mt-2 text-[11px] text-[#444444] dark:text-[#cbd5e1]">Enter values in millions (e.g., 2.5 = ฿2,500,000). Values are saved in your browser.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- #10 — 簽約/開票/收款 tracking + #13 Week 1 leading metrics + #11 Activity reframed -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          <!-- #13 — Pipeline Created This Week -->
+          <div class="glass border border-[#E2E8F0] dark:border-[#1a2744] p-3 animate-in stagger-1" style="border-radius:16px">
+            <div class="section-label flex items-center gap-1">Deals Created
+              <span x-data="dwTip('本週新增的案件數量')" class="dw-tip-touch relative inline-flex items-center">
+                <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble" x-text="text" x-cloak></div>
+              </span>
+            </div>
+            <div class="kpi text-[22px] font-extrabold mt-1 leading-none kpi-animate stagger-1" x-text="data.deals.length"></div>
+            <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5">this week</div>
+          </div>
+          <!-- #13 — Meetings Held -->
+          <div class="glass border border-[#E2E8F0] dark:border-[#1a2744] p-3 animate-in stagger-2" style="border-radius:16px">
+            <div class="section-label">Meetings</div>
+            <div class="kpi text-[22px] font-extrabold mt-1 leading-none kpi-animate stagger-2" x-text="data.deals.filter(d => d.activity_log && d.activity_log.length > 0).length"></div>
+            <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5">held</div>
+          </div>
+          <!-- #10 — 簽約 Signed -->
+          <div class="glass border border-[#E2E8F0] dark:border-[#1a2744] p-3 animate-in stagger-3" style="border-radius:16px">
+            <div class="section-label flex items-center gap-1">Signed
+              <span x-data="dwTip('已完成簽約的合約數。簽約 → 開票 → 收款 是鼎捷營收確認流程。')" class="dw-tip-touch relative inline-flex items-center">
+                <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble" x-text="text" x-cloak></div>
+              </span>
+            </div>
+            <div class="kpi text-[22px] font-extrabold mt-1 leading-none text-[#E2E8F0] dark:text-[#4a6080] kpi-animate stagger-3">0</div>
+            <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5">contracts</div>
+          </div>
+          <!-- #10 — 開票 Invoiced -->
+          <div class="glass border border-[#E2E8F0] dark:border-[#1a2744] p-3 animate-in stagger-4" style="border-radius:16px">
+            <div class="section-label">Invoiced</div>
+            <div class="kpi text-[22px] font-extrabold mt-1 leading-none text-[#E2E8F0] dark:text-[#4a6080] kpi-animate stagger-4">0</div>
+            <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5">invoices</div>
+          </div>
+        </div>
+
+        <!-- #10 — 收款 Collected + #11 Activity metrics as compact line -->
+        <div class="flex flex-wrap items-center gap-4 mb-5 px-1">
+          <div class="flex items-center gap-2 text-[12px]">
+            <span class="font-bold text-[#444444] dark:text-[#cbd5e1]">收款 Collected:</span>
+            <span class="kpi font-bold text-[#E2E8F0] dark:text-[#4a6080]">฿0</span>
+          </div>
+          <div class="w-px h-4 bg-[#E2E8F0] dark:bg-[#1a2744]"></div>
+          <!-- #11 — Activity metrics reframed as "This Week" -->
+          <div class="flex items-center gap-3 text-[12px] text-[#444444] dark:text-[#cbd5e1]">
+            <span class="font-semibold">This Week:</span>
+            <span>Calls: <span class="kpi font-bold" x-text="data.metrics.calls_today"></span></span>
+            <span class="text-[#E2E8F0] dark:text-[#4a6080]">|</span>
+            <span>Emails: <span class="kpi font-bold" x-text="data.metrics.emails_queued"></span></span>
+            <span class="text-[#E2E8F0] dark:text-[#4a6080]">|</span>
+            <span>Contacts: <span class="kpi font-bold" x-text="data.metrics.contacts_added"></span></span>
+          </div>
+        </div>
+
+        <!-- PIPELINE -->
+        <div x-show="activeTab==='pipeline'" x-transition.duration.200ms>
+          <!-- #6 — Desktop: ALL 6 stages always visible -->
+          <div class="hidden lg:grid lg:grid-cols-3 xl:grid-cols-6 gap-2.5">
+            <template x-for="(stage, si) in stages" :key="stage">
+              <div class="animate-in" :class="'stagger-' + (si+1)">
+                <div class="text-center mb-2.5">
+                  <div class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-bold"
+                       :style="'background:' + stageColor(stage)" :class="['D','B'].includes(stage) ? 'text-[#000864]' : 'text-white'">
+                    <span x-text="stage"></span>
+                    <span class="kpi" x-text="dealsInStage(stage).length"></span>
+                  </div>
+                  <div class="kpi text-[11px] font-bold mt-1" :class="stageValue(stage) > 0 ? 'text-[#000864] dark:text-[#cbd5e1]' : 'text-[#E2E8F0] dark:text-[#4a6080]'" x-text="stageValue(stage) > 0 ? fmtB(stageValue(stage)) : '—'"></div>
+                </div>
+                <div class="space-y-2 min-h-[100px]" :data-stage="stage">
+                  <template x-for="deal in dealsInStage(stage)" :key="deal.id">
+                    <div class="deal-card glass rounded-xl border border-[#E2E8F0] dark:border-[#1a2744] p-3 text-[12px]"
+                         :class="[
+                           'stage-' + deal.stage.toLowerCase(),
+                           dealSLAClass(deal)
+                         ]"
+                         :data-deal-id="deal.id" @click="openDeal(deal)" style="border-radius:14px">
+                      <div class="font-bold leading-tight text-[13px]" x-text="deal.company"></div>
+                      <!-- #7 — Deal value: "Enter ฿" in amber instead of "TBD" -->
+                      <div class="kpi text-[14px] font-extrabold mt-1" :class="deal.value ? 'text-[#000864] dark:text-white' : 'text-[#FFD700]'">
+                        <span x-show="deal.value" x-text="fmtB(deal.value)"></span>
+                        <span x-show="!deal.value" class="flex items-center gap-1">
+                          <i data-lucide="pencil" class="w-3 h-3"></i> Enter ฿
+                        </span>
+                      </div>
+                      <!-- #12 — Stakeholder completeness + six elements -->
+                      <div class="flex items-center gap-2 mt-1.5">
+                        <div class="flex items-center gap-1">
+                          <template x-for="(val, key) in deal.six_elements" :key="key">
+                            <div class="w-[7px] h-[7px] rounded-full transition-colors" :class="(val===true||(val&&val.status===true))?'bg-[#02D28C]':(val==='partial'||(val&&val.status==='partial'))?'bg-[#FFD700]':'bg-[#E2E8F0] dark:bg-[#1a2744]'"></div>
+                          </template>
+                          <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1] ml-0.5" x-text="sixScore(deal)+'/6'"></span>
+                        </div>
+                        <span class="kpi text-[11px] px-1 py-0.5 rounded" :class="stakeholderRoles(deal) >= 3 ? 'text-[#02D28C] bg-[#02D28C]/10' : stakeholderRoles(deal) >= 1 ? 'text-[#b8960c] bg-[#FFD700]/10' : 'text-[#444444] bg-[#F5F7FA] dark:bg-[#000864]'" x-text="stakeholderRoles(deal) + '/3'"></span>
+                      </div>
+                      <div class="flex items-center justify-between mt-1.5">
+                        <span class="text-[#444444] dark:text-[#cbd5e1] text-[11px] leading-snug flex-1 line-clamp-2" x-text="'→ '+deal.next_action"></span>
+                        <span class="kpi text-[11px] font-bold ml-1 px-1.5 py-0.5 rounded flex-shrink-0" :class="deal.days_at_stage > (data.stage_sla?.[deal.stage]||30) ? 'bg-[#FF6E82]/10 text-[#FF6E82]' : deal.days_at_stage > (data.stage_sla?.[deal.stage]||30)*0.7 ? 'bg-[#FFD700]/10 text-[#b8960c] dark:text-[#FFD700]' : 'text-[#444444] dark:text-[#cbd5e1]'" x-text="deal.days_at_stage + 'd'"></span>
+                      </div>
+                    </div>
+                  </template>
+                  <!-- #6 — Empty stage: show "0 deals" with dashed border -->
+                  <div x-show="dealsInStage(stage).length===0" class="flex flex-col items-center justify-center h-24 text-[11px] text-[#999999] dark:text-[#4a6080] border-2 border-dashed border-[#cbd5e1] dark:border-[#2a4060] rounded-xl gap-1">
+                    <span class="kpi font-bold">0 deals</span>
+                    <span class="text-[11px]" x-text="stage + ' Stage'"></span>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- #6 — Mobile Pipeline: show ALL stages (including empty) -->
+          <div class="lg:hidden space-y-4">
+            <template x-for="stage in stages" :key="stage">
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <div class="w-3 h-3 rounded-full" :style="'background:'+stageColor(stage)"></div>
+                  <h3 class="text-[13px] font-bold" x-text="stage + ' Stage'"></h3>
+                  <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="dealsInStage(stage).length"></span>
+                  <span class="kpi text-[11px] font-bold ml-auto" :class="stageValue(stage) > 0 ? '' : 'text-[#E2E8F0] dark:text-[#4a6080]'" x-text="stageValue(stage) > 0 ? fmtB(stageValue(stage)) : '—'"></span>
+                </div>
+                <!-- Deals in this stage -->
+                <div class="space-y-2" x-show="dealsInStage(stage).length > 0">
+                  <template x-for="deal in dealsInStage(stage)" :key="deal.id">
+                    <div class="deal-card glass rounded-xl border border-[#E2E8F0] dark:border-[#1a2744] p-4"
+                         :class="['stage-'+deal.stage.toLowerCase(), dealSLAClass(deal)]" @click="openDeal(deal)" style="border-radius:16px">
+                      <div class="flex justify-between items-start">
+                        <span class="font-bold text-[14px]" x-text="deal.company"></span>
+                        <!-- #7 — "Enter ฿" in amber -->
+                        <span class="kpi text-[14px] font-extrabold" :class="deal.value ? '' : 'text-[#FFD700]'" x-text="deal.value ? fmtB(deal.value) : 'Enter ฿'"></span>
+                      </div>
+                      <!-- #12 — Stakeholders + six elements -->
+                      <div class="flex items-center gap-2 mt-2">
+                        <div class="flex items-center gap-1">
+                          <template x-for="(val,key) in deal.six_elements" :key="key">
+                            <div class="w-2 h-2 rounded-full" :class="(val===true||(val&&val.status===true))?'bg-[#02D28C]':(val==='partial'||(val&&val.status==='partial'))?'bg-[#FFD700]':'bg-[#E2E8F0] dark:bg-[#1a2744]'"></div>
+                          </template>
+                          <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1] ml-1" x-text="sixScore(deal)+'/6'"></span>
+                        </div>
+                        <span class="kpi text-[11px] px-1 py-0.5 rounded" :class="stakeholderRoles(deal) >= 3 ? 'text-[#02D28C] bg-[#02D28C]/10' : stakeholderRoles(deal) >= 1 ? 'text-[#b8960c] bg-[#FFD700]/10' : 'text-[#444444] bg-[#F5F7FA] dark:bg-[#000864]'" x-text="stakeholderRoles(deal) + '/3 roles'"></span>
+                      </div>
+                      <div class="text-[12px] text-[#444444] dark:text-[#cbd5e1] mt-2" x-text="'→ '+deal.next_action"></div>
+                    </div>
+                  </template>
+                </div>
+                <!-- #6 — Empty stage on mobile -->
+                <div x-show="dealsInStage(stage).length === 0" class="flex items-center justify-center h-16 text-[11px] text-[#E2E8F0] dark:text-[#4a6080] border-2 border-dashed border-[#E2E8F0] dark:border-[#1a2744] rounded-xl">
+                  <span class="kpi">0 deals</span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- I OWE -->
+        <div x-show="activeTab==='i_owe'" x-transition.duration.200ms>
+          <div class="space-y-2">
+            <template x-for="(item,i) in sortedIOwe" :key="item.what">
+              <div class="glass rounded-xl border border-[#E2E8F0] dark:border-[#1a2744] p-4 animate-in"
+                   :class="[
+                     item.status==='overdue' ? 'border-l-4 border-l-[#FF6E82]' : item.status==='due_today' ? 'border-l-4 border-l-[#FFD700]' : 'border-l-4 border-l-[#02D28C]',
+                     'stagger-'+(i%6+1)
+                   ]" style="border-radius:16px">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1 min-w-0">
+                    <div class="font-bold text-[13px]" x-text="item.what"></div>
+                    <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5 flex items-center gap-1"><i data-lucide="arrow-right" class="w-3 h-3"></i><span x-text="item.to+' · '+item.company"></span></div>
+                  </div>
+                  <div class="flex-shrink-0 flex items-center gap-2">
+                    <span class="kpi text-[11px] font-bold" :class="getDealValue(item.company) ? 'text-[#000864] dark:text-[#cbd5e1]' : 'text-[#E2E8F0]'" x-text="getDealValue(item.company) ? fmtB(getDealValue(item.company)) : ''"></span>
+                    <span class="tag-label px-2.5 py-1 rounded-lg"
+                          :class="{'bg-[#FF6E82] text-white':item.status==='overdue','bg-[#FFD700] text-[#000864]':item.status==='due_today','bg-[#F5F7FA] dark:bg-[#000864] text-[#444444] dark:text-[#cbd5e1]':item.status==='upcoming'}"
+                          x-text="item.status==='overdue'?'OVERDUE':item.status==='due_today'?'TODAY':item.due"></span>
+                  </div>
+                </div>
+                <div class="text-[11px] text-[#003CC8] dark:text-[#00E6FF] mt-2"><b>WHY:</b> <span x-text="item.why"></span></div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- THEY OWE -->
+        <div x-show="activeTab==='they_owe'" x-transition.duration.200ms>
+          <div class="space-y-2">
+            <template x-for="(item,i) in data.they_owe" :key="item.what">
+              <div class="glass rounded-xl border border-[#E2E8F0] dark:border-[#1a2744] p-4 animate-in" :class="'stagger-'+(i%6+1)" style="border-radius:16px">
+                <div class="flex justify-between items-start">
+                  <div><div class="font-bold text-[13px]" x-text="item.what"></div><div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i><span x-text="item.from+' · '+item.company"></span></div></div>
+                  <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1] flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i><span x-text="item.follow_up"></span></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- ALL DEALS -->
+        <div x-show="activeTab==='all_deals'" x-transition.duration.200ms>
+          <div class="glass border border-[#E2E8F0] dark:border-[#1a2744] overflow-hidden" style="border-radius:16px">
+            <div class="overflow-x-auto">
+              <table class="w-full text-[12px]">
+                <thead><tr class="text-left border-b border-[#E2E8F0] dark:border-[#1a2744]">
+                  <th class="px-4 py-3 section-label">Company</th><th class="px-4 py-3 section-label">Contact</th><th class="px-4 py-3 section-label">Stage</th><th class="px-4 py-3 text-right section-label">Value</th><th class="px-4 py-3 section-label">六要素</th><th class="px-4 py-3 hidden md:table-cell section-label">Next Action</th>
+                </tr></thead>
+                <tbody>
+                  <template x-for="deal in sortedDealsByValue" :key="deal.id">
+                    <tr class="border-b border-[#E2E8F0]/40 dark:border-[#1a2744]/40 hover:bg-[#00AFF0]/5 dark:hover:bg-[#00AFF0]/5 transition-colors cursor-pointer" @click="openDeal(deal)">
+                      <td class="px-4 py-3 font-bold" x-text="deal.company"></td>
+                      <td class="px-4 py-3 text-[#444444] dark:text-[#cbd5e1]" x-text="deal.person"></td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center justify-center w-8 h-5 rounded-md text-[11px] font-bold" :style="'background:'+stageColor(deal.stage)" :class="['D','B'].includes(deal.stage) ? 'text-[#000864]' : 'text-white'" x-text="deal.stage"></span></td>
+                      <td class="px-4 py-3 text-right">
+                        <span class="kpi text-[13px] font-bold" :class="deal.value ? '' : 'text-[#FFD700]'" x-text="deal.value ? fmtB(deal.value) : 'Enter ฿'"></span>
+                        <div x-show="deal.value" class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="'weighted: ' + fmtB(deal.value * (data.stage_weights[deal.stage] || 0))"></div>
+                      </td>
+                      <td class="px-4 py-3"><div class="flex gap-[3px]"><template x-for="(val,key) in deal.six_elements" :key="key"><div class="w-[6px] h-[6px] rounded-full" :class="(val===true||(val&&val.status===true))?'bg-[#02D28C]':(val==='partial'||(val&&val.status==='partial'))?'bg-[#FFD700]':'bg-[#E2E8F0] dark:bg-[#1a2744]'"></div></template></div></td>
+                      <td class="px-4 py-3 text-[#444444] dark:text-[#cbd5e1] hidden md:table-cell max-w-[200px] truncate" x-text="deal.next_action"></td>
+                    </tr>
+                  </template>
+                </tbody>
+                <tfoot>
+                  <tr class="border-t-2 border-[#E2E8F0]/40 dark:border-[#1a2744]/40 font-bold text-[12px]">
+                    <td class="px-4 py-3" colspan="3">Total</td>
+                    <td class="px-4 py-3 text-right">
+                      <div class="kpi text-[14px]" x-text="totalPipeline > 0 ? fmtB(totalPipeline) : '—'"></div>
+                      <div class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="weightedPipeline > 0 ? 'weighted: ' + fmtB(weightedPipeline) : ''"></div>
+                    </td>
+                    <td class="px-4 py-3" colspan="2"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ═══════════ BOTTOM COMMITMENTS (Desktop) ═══════════ -->
+    <div class="hidden lg:grid lg:grid-cols-2 gap-5 mt-7 animate-in stagger-6">
+      <section>
+        <div class="flex items-center gap-2 mb-3"><div class="w-6 h-6 rounded-lg bg-[#FF6E82]/10 flex items-center justify-center"><i data-lucide="send" class="w-3.5 h-3.5 text-[#FF6E82]"></i></div><h3 class="text-[13px] font-bold">I Owe</h3><span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1] ml-auto" x-text="data.i_owe.length"></span></div>
+        <div class="space-y-1.5">
+          <template x-for="item in sortedIOwe.slice(0,5)" :key="item.what">
+            <div class="glass rounded-lg border-l-4 border border-[#E2E8F0] dark:border-[#1a2744] px-3 py-2.5 text-[12px]" :class="item.status==='overdue'?'border-l-[#FF6E82]':item.status==='due_today'?'border-l-[#FFD700]':'border-l-[#02D28C]'">
+              <div class="flex justify-between"><span class="font-semibold" x-text="item.what"></span><span class="kpi text-[11px] font-bold" :class="{'text-[#FF6E82]':item.status==='overdue','text-[#b8960c] dark:text-[#FFD700]':item.status==='due_today','text-[#444444] dark:text-[#cbd5e1]':item.status==='upcoming'}" x-text="item.status==='overdue'?'OVERDUE':item.status==='due_today'?'TODAY':item.due"></span></div>
+              <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="item.to+' · '+item.company"></div>
+            </div>
+          </template>
+        </div>
+      </section>
+      <section>
+        <div class="flex items-center gap-2 mb-3"><div class="w-6 h-6 rounded-lg bg-[#00AFF0]/10 flex items-center justify-center"><i data-lucide="inbox" class="w-3.5 h-3.5 text-[#00AFF0]"></i></div><h3 class="text-[13px] font-bold">They Owe</h3><span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1] ml-auto" x-text="data.they_owe.length"></span></div>
+        <div class="space-y-1.5">
+          <template x-for="item in data.they_owe.slice(0,5)" :key="item.what">
+            <div class="glass rounded-lg border border-[#E2E8F0] dark:border-[#1a2744] px-3 py-2.5 text-[12px]">
+              <div class="flex justify-between"><span class="font-semibold" x-text="item.what"></span><span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="item.follow_up"></span></div>
+              <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="item.from+' · '+item.company"></div>
+            </div>
+          </template>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ═══════════ DEAL MODAL ═══════════ -->
+  <div x-show="selectedDeal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" class="fixed inset-0 z-[100] flex items-end lg:items-center justify-center p-4" @click.self="selectedDeal=null" @keydown.escape.window="selectedDeal=null">
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div x-show="selectedDeal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-8 opacity-0 scale-95" x-transition:enter-end="translate-y-0 opacity-100 scale-100" class="relative glass shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto border border-[#E2E8F0] dark:border-[#1a2744]" style="border-radius:20px">
+      <template x-if="selectedDeal">
+        <div>
+          <div class="sticky top-0 glass px-5 py-4 border-b border-[#E2E8F0] dark:border-[#1a2744] flex justify-between items-start z-10" style="border-radius:20px 20px 0 0">
+            <div>
+              <h2 class="font-bold text-lg tracking-tight" x-text="selectedDeal.company"></h2>
+              <div class="text-[12px] text-[#444444] dark:text-[#cbd5e1] mt-0.5" x-text="selectedDeal.person+' — '+selectedDeal.title"></div>
+              <div class="flex items-center gap-2 mt-2 flex-wrap">
+                <span class="px-2 py-0.5 rounded-md tag-label" :style="'background:'+stageColor(selectedDeal.stage)" :class="['D','B'].includes(selectedDeal.stage) ? 'text-[#000864]' : 'text-white'" x-text="selectedDeal.stage+' Stage'"></span>
+                <span class="tag-label px-2 py-0.5 rounded-md" :class="{'bg-[#02D28C]/10 text-[#02D28C]':selectedDeal.fit==='HIGH','bg-[#FFD700]/10 text-[#b8960c] dark:text-[#FFD700]':selectedDeal.fit==='MEDIUM','bg-[#F5F7FA] dark:bg-[#000864] text-[#444444] dark:text-[#cbd5e1]':selectedDeal.fit==='LOW'}" x-text="selectedDeal.fit+' Fit'"></span>
+                <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="selectedDeal.industry"></span>
+                <!-- #12 — Stakeholder roles in modal header -->
+                <span class="kpi text-[11px] px-1.5 py-0.5 rounded" :class="stakeholderRoles(selectedDeal) >= 3 ? 'text-[#02D28C] bg-[#02D28C]/10' : 'text-[#b8960c] bg-[#FFD700]/10'" x-text="stakeholderRoles(selectedDeal) + '/3 roles ID\'d'"></span>
+                <span x-data="dwTip('三角色模型：守門員(Gatekeeper)、決策者(Decision Maker)、核決者(Approver)。需辨識且可聯繫才計入。')" class="dw-tip-touch relative inline-flex items-center">
+                  <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                  <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble" x-text="text" x-cloak></div>
+                </span>
+              </div>
+            </div>
+            <button @click="selectedDeal=null" class="w-8 h-8 rounded-xl bg-[#F5F7FA] dark:bg-[#000864] flex items-center justify-center cursor-pointer hover:bg-[#E2E8F0] dark:hover:bg-[#001080] transition-all active:scale-90" aria-label="Close"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+          <div class="px-5 py-5 space-y-6">
+
+            <!-- Deal Value (editable in modal) -->
+            <div class="p-4 rounded-xl border-2" :class="selectedDeal.value ? 'border-[#02D28C]/50 bg-[#02D28C]/5' : 'border-[#FFD700]/50 bg-[#FFD700]/5'">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="section-label">Deal Value</div>
+                  <div class="kpi text-[28px] font-extrabold mt-1 leading-none" :class="selectedDeal.value ? 'text-[#02D28C]' : 'text-[#FFD700]'" x-text="selectedDeal.value ? fmtB(selectedDeal.value) : 'Not Set'"></div>
+                </div>
+                <div class="text-right" x-show="selectedDeal.value">
+                  <div class="section-label">Weighted</div>
+                  <div class="kpi text-[20px] font-bold text-[#444444] dark:text-[#cbd5e1] mt-1" x-text="fmtB(selectedDeal.value * (data.stage_weights[selectedDeal.stage] || 0))"></div>
+                  <div class="text-[11px] kpi text-[#444444] dark:text-[#cbd5e1]" x-text="((data.stage_weights[selectedDeal.stage] || 0) * 100).toFixed(0) + '% at ' + selectedDeal.stage"></div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3">
+                <span class="text-[12px] kpi text-[#444444] dark:text-[#cbd5e1]">฿</span>
+                <input type="text" class="value-input kpi text-[16px] font-bold px-2 py-1.5 rounded-lg bg-white/50 dark:bg-[#000864]/50 border border-[#E2E8F0] dark:border-[#1a2744]"
+                       :value="selectedDeal.value ? (selectedDeal.value/1e6).toFixed(2) : ''"
+                       placeholder="Enter value in M (e.g., 2.5)"
+                       @blur="saveDealValue(selectedDeal, $event.target.value); $event.target.value = selectedDeal.value ? (selectedDeal.value/1e6).toFixed(2) : ''"
+                       @keydown.enter="$event.target.blur()">
+                <span class="text-[11px] text-[#444444] dark:text-[#cbd5e1]">M (millions)</span>
+              </div>
+            </div>
+
+            <!-- 項目六要素 -->
+            <div>
+              <h3 class="text-[13px] font-bold mb-3 flex items-center gap-2"><i data-lucide="hexagon" class="w-4 h-4 text-[#00AFF0]"></i>項目六要素
+                <span x-data="dwTip('項目六要素：時程、預算、需求、決策流程、競爭對手、動機。全部確認才算案件成熟。')" class="dw-tip-touch relative inline-flex items-center">
+                  <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                  <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble" x-text="text" x-cloak></div>
+                </span>
+                <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="sixScore(selectedDeal)+'/6'"></span></h3>
+              <div class="space-y-2">
+                <template x-for="(elem,key) in selectedDeal.six_elements" :key="key">
+                  <div x-data="{showTip: false}" class="flex items-start gap-3 p-3 rounded-xl transition-colors" :class="(elem.status===true)?'bg-[#02D28C]/5 dark:bg-[#02D28C]/10':(elem.status==='partial')?'bg-[#FFD700]/5 dark:bg-[#FFD700]/10':'bg-[#F5F7FA] dark:bg-[#000864]/50'">
+                    <div class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 cursor-pointer" :class="(elem.status===true)?'bg-[#02D28C]':(elem.status==='partial')?'bg-[#FFD700]':'bg-[#E2E8F0] dark:bg-[#1a2744]'" @click="if(elem.status !== true) showTip = !showTip">
+                      <i x-show="elem.status===true" data-lucide="check" class="w-3 h-3 text-white"></i>
+                      <i x-show="elem.status==='partial'" data-lucide="minus" class="w-3 h-3 text-white"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[12px] font-bold" x-text="{'timeline':'時程 Timeline','budget':'預算 Budget','requirements':'需求 Requirements','decision':'決策流程 Decision Process','competitors':'競爭對手 Competitors','motivation':'動機 Motivation'}[key]"></span>
+                        <!-- Clickable suggestion trigger for gray/amber -->
+                        <button x-show="elem.status !== true" @click="showTip = !showTip" class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md cursor-pointer transition-all" :class="showTip ? 'bg-[#00AFF0] text-white' : 'bg-[#00AFF0]/10 text-[#00AFF0] hover:bg-[#00AFF0]/20'">
+                          <i data-lucide="lightbulb" class="w-3 h-3"></i>
+                          <span x-text="elem.status === 'partial' ? '如何確認' : '下一步'"></span>
+                        </button>
+                      </div>
+                      <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5 leading-relaxed" x-text="elem.detail"></div>
+                      <!-- Coaching suggestion — hidden by default, click to reveal -->
+                      <div x-show="showTip" x-transition.duration.200ms class="mt-2 p-2.5 rounded-lg border border-[#00AFF0]/20 bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10">
+                        <div class="text-[11px] text-[#333333] dark:text-[#E2E8F0] leading-relaxed" x-text="sixSuggestion(key, selectedDeal)"></div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div x-show="selectedDeal.contacts && selectedDeal.contacts.length > 0" class="flex flex-wrap gap-2">
+              <template x-for="c in selectedDeal.contacts" :key="c.name">
+                <div class="flex items-center gap-1.5">
+                  <template x-if="c.phone">
+                    <a :href="'tel:' + c.phone" class="inline-flex items-center gap-1 tag-label px-3 py-1.5 rounded-lg bg-[#02D28C]/10 text-[#02D28C] hover:bg-[#02D28C]/20 transition-colors cursor-pointer" @click.stop>
+                      <i data-lucide="phone" class="w-3 h-3"></i>
+                      <span x-text="c.name"></span>
+                    </a>
+                  </template>
+                  <template x-if="c.email">
+                    <a :href="'mailto:' + c.email" class="inline-flex items-center gap-1 tag-label px-3 py-1.5 rounded-lg bg-[#00AFF0]/10 text-[#00AFF0] dark:text-[#00E6FF] hover:bg-[#00AFF0]/20 transition-colors cursor-pointer" @click.stop>
+                      <i data-lucide="mail" class="w-3 h-3"></i>
+                      <span>Email</span>
+                    </a>
+                  </template>
+                </div>
+              </template>
+            </div>
+
+            <!-- Advancement Checklist -->
+            <div x-show="selectedDeal.advancement">
+              <h3 class="text-[13px] font-bold mb-3 flex items-center gap-2">
+                <i data-lucide="arrow-up-right" class="w-4 h-4 text-[#02D28C]"></i>
+                推進計畫
+                <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="selectedDeal.advancement ? selectedDeal.advancement.current + ' → ' + selectedDeal.advancement.target : ''"></span>
+              </h3>
+              <div class="space-y-1.5" x-show="selectedDeal.advancement && selectedDeal.advancement.checklist">
+                <template x-for="item in (selectedDeal.advancement || {}).checklist || []" :key="item.task">
+                  <div class="flex items-start gap-2.5 p-2 rounded-lg text-[12px]" :class="item.done ? 'bg-[#02D28C]/5' : 'bg-[#F5F7FA] dark:bg-[#000864]/50'">
+                    <div class="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5" :class="item.done ? 'border-[#02D28C] bg-[#02D28C]' : 'border-[#E2E8F0] dark:border-[#1a2744]'">
+                      <i x-show="item.done" data-lucide="check" class="w-2.5 h-2.5 text-white"></i>
+                    </div>
+                    <span :class="item.done ? 'line-through text-[#444444] dark:text-[#cbd5e1]' : ''" x-text="item.task"></span>
+                  </div>
+                </template>
+                <div class="mt-2 h-1.5 rounded-full bg-[#F5F7FA] dark:bg-[#000864] overflow-hidden" x-show="selectedDeal.advancement && selectedDeal.advancement.checklist">
+                  <div class="h-full rounded-full bg-[#02D28C] transition-all duration-500" :style="'width:' + ((selectedDeal.advancement?.checklist?.filter(i => i.done).length || 0) / (selectedDeal.advancement?.checklist?.length || 1) * 100) + '%'"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Velocity -->
+            <div class="flex items-center gap-4 p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#000864]/50 text-[12px]" x-show="selectedDeal.stage_entry_date">
+              <div>
+                <div class="section-label flex items-center gap-1">Days at Stage
+                  <span x-data="dwTip('案件在當前階段停留天數。超過SLA會變紅色警示。')" class="dw-tip-touch relative inline-flex items-center">
+                    <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                    <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble" x-text="text" x-cloak></div>
+                  </span>
+                </div>
+                <div class="kpi text-lg font-bold" :class="selectedDeal.days_at_stage > (data.stage_sla?.[selectedDeal.stage] || 30) ? 'text-[#FF6E82]' : selectedDeal.days_at_stage > (data.stage_sla?.[selectedDeal.stage] || 30) * 0.7 ? 'text-[#FFD700]' : 'text-[#02D28C]'" x-text="selectedDeal.days_at_stage"></div>
+              </div>
+              <div>
+                <div class="section-label flex items-center gap-1">SLA
+                  <span x-data="dwTip('服務等級協議：各階段允許停留的最大天數。E=14d, D=30d, C2=30d, C1=45d, B=30d, A=14d')" class="dw-tip-touch relative inline-flex items-center">
+                    <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                    <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble" x-text="text" x-cloak></div>
+                  </span>
+                </div>
+                <div class="kpi text-lg font-bold text-[#444444] dark:text-[#cbd5e1]" x-text="(data.stage_sla?.[selectedDeal.stage] || '—') + 'd'"></div>
+              </div>
+              <div x-show="selectedDeal.expected_close_date">
+                <div class="section-label">Expected Close</div>
+                <div class="kpi text-lg font-bold" x-text="selectedDeal.expected_close_date || 'TBD'"></div>
+              </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div x-show="selectedDeal.activity_log && selectedDeal.activity_log.length > 0">
+              <h3 class="text-[13px] font-bold mb-3 flex items-center gap-2">
+                <i data-lucide="history" class="w-4 h-4 text-[#444444] dark:text-[#cbd5e1]"></i>
+                活動記錄 Activity Log
+              </h3>
+              <div class="space-y-2 border-l-2 border-[#E2E8F0] dark:border-[#1a2744] ml-2 pl-4">
+                <template x-for="log in selectedDeal.activity_log" :key="log.date + log.action">
+                  <div class="relative text-[11px]">
+                    <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full" :class="log.stage_change ? 'bg-[#02D28C]' : 'bg-[#E2E8F0] dark:bg-[#1a2744]'"></div>
+                    <div class="font-bold text-[#444444] dark:text-[#cbd5e1]" x-text="log.date"></div>
+                    <div class="font-semibold mt-0.5" x-text="log.action"></div>
+                    <div class="text-[#444444] dark:text-[#cbd5e1]" x-text="'→ ' + log.outcome"></div>
+                    <div x-show="log.stage_change" class="text-[#02D28C] font-bold mt-0.5" x-text="'Stage: ' + log.stage_change"></div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- 六要素 Action Plan -->
+            <div x-show="selectedDeal.six_element_actions && Object.keys(selectedDeal.six_element_actions || {}).length > 0">
+              <h3 class="text-[13px] font-bold mb-3 flex items-center gap-2">
+                <i data-lucide="clipboard-list" class="w-4 h-4 text-[#FFD700]"></i>
+                六要素補齊計畫
+              </h3>
+              <div class="space-y-1.5">
+                <template x-for="(plan, key) in selectedDeal.six_element_actions || {}" :key="key">
+                  <div class="flex items-start gap-2.5 p-2.5 rounded-lg bg-[#FFD700]/5 dark:bg-[#FFD700]/10 text-[11px]">
+                    <div class="w-5 h-5 rounded-full bg-[#FFD700] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <i data-lucide="alert-circle" class="w-3 h-3 text-[#000864]"></i>
+                    </div>
+                    <div>
+                      <div class="font-bold" x-text="{'timeline':'時程','budget':'預算','requirements':'需求','decision':'決策流程','competitors':'競爭對手','motivation':'動機'}[key] || key"></div>
+                      <div class="text-[#444444] dark:text-[#cbd5e1] mt-0.5" x-text="plan.action"></div>
+                      <div x-show="plan.due" class="kpi text-[11px] text-[#FFD700] mt-0.5" x-text="'到期: ' + plan.due"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- 不得不做 -->
+            <div>
+              <h3 class="text-[13px] font-bold mb-3 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-[#FF6E82]"></i>不得不做分析
+                <span x-data="dwTip('兩層動機分析：(1) 客戶不得不做的理由（為何必須行動）(2) 不得不跟鼎捷做的理由（為何選我們）')" class="dw-tip-touch relative inline-flex items-center">
+                  <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show" @click.outside="show=false" @keydown.escape.window="show=false" class="dw-tip-trigger" aria-label="Help">?</button>
+                  <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble" x-text="text" x-cloak></div>
+                </span>
+              </h3>
+              <div class="space-y-2">
+                <div class="p-3 rounded-xl border" :class="selectedDeal.must_act==='strong'?'border-[#02D28C]/50 bg-[#02D28C]/5':'border-[#E2E8F0]/40 bg-[#F5F7FA] dark:bg-[#000864]/50 dark:border-[#1a2744]/40'">
+                  <div class="text-[12px] font-bold">不得不做的理由 — 為什麼必須行動？</div>
+                  <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-1" x-text="selectedDeal.must_act_detail"></div>
+                </div>
+                <div class="p-3 rounded-xl border" :class="selectedDeal.must_choose_digiwin==='strong'?'border-[#02D28C]/50 bg-[#02D28C]/5':'border-[#FF6E82]/50 bg-[#FF6E82]/5 dark:border-[#FF6E82]/30 dark:bg-[#FF6E82]/5'">
+                  <div class="text-[12px] font-bold">不得不跟鼎捷做的理由 — 為什麼選鼎捷？</div>
+                  <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-1" x-text="selectedDeal.must_choose_detail"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pain Points -->
+            <div x-show="selectedDeal.pain_points&&selectedDeal.pain_points.length>0">
+              <h3 class="text-[13px] font-bold mb-3 flex items-center gap-2"><i data-lucide="flame" class="w-4 h-4 text-[#FF6E82]"></i>痛點 Pain Points</h3>
+              <div class="space-y-1.5">
+                <template x-for="pain in selectedDeal.pain_points" :key="pain">
+                  <div class="flex items-start gap-2 text-[11px] text-[#444444] dark:text-[#cbd5e1]"><span class="text-[#FF6E82] mt-0.5 flex-shrink-0">&#8226;</span><span x-text="pain"></span></div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Stakeholders -->
+            <div x-show="selectedDeal.stakeholders&&selectedDeal.stakeholders.length>0">
+              <h3 class="text-[13px] font-bold mb-3 flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-[#644CE6]"></i>關鍵人物 Stakeholders <span class="kpi text-[11px]" :class="stakeholderRoles(selectedDeal) >= 3 ? 'text-[#02D28C]' : 'text-[#FFD700]'" x-text="stakeholderRoles(selectedDeal) + '/3 roles'"></span></h3>
+              <div class="space-y-1.5">
+                <template x-for="sh in selectedDeal.stakeholders" :key="sh.name">
+                  <div class="flex items-start gap-3 p-2.5 rounded-xl bg-[#F5F7FA] dark:bg-[#000864]/50 text-[12px]">
+                    <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#00AFF0] to-[#003CC8] flex items-center justify-center flex-shrink-0 text-[11px] font-bold text-white" x-text="sh.name.charAt(0)"></div>
+                    <div class="flex-1 min-w-0">
+                      <div class="font-bold" x-text="sh.name"></div>
+                      <div class="text-[#444444] dark:text-[#cbd5e1] flex items-center gap-2"><span x-text="sh.role"></span><span class="tag-label px-1.5 py-0.5 rounded-md bg-[#F5F7FA] dark:bg-[#001080]" x-text="sh.type"></span></div>
+                      <div x-show="sh.notes" class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5" x-text="sh.notes"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Call Summary -->
+            <div x-show="selectedDeal.call_summary">
+              <h3 class="text-[13px] font-bold mb-2 flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-[#00AFF0]"></i>最近通話摘要 <span class="kpi text-[11px] text-[#444444] dark:text-[#cbd5e1]" x-text="selectedDeal.transcript_date"></span></h3>
+              <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 rounded-xl p-3 leading-relaxed border border-[#00AFF0]/30 dark:border-[#00AFF0]/30" x-text="selectedDeal.call_summary"></div>
+            </div>
+
+            <!-- Next Action -->
+            <div class="rounded-xl p-4" style="background:linear-gradient(135deg,#00AFF0,#003CC8)">
+              <div class="section-label mb-1 !text-white/70">Next Action</div>
+              <div class="font-bold text-[14px] text-white" x-text="selectedDeal.next_action"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="text-center text-[11px] text-[#444444] dark:text-[#cbd5e1] py-8 mt-4 relative z-10">
+    <span class="font-bold">Digiwin Thailand</span> · Sales Pipeline Dashboard · <span class="kpi" x-text="data.generated_at"></span> · <a href="wiki.html" class="text-[#00AFF0] hover:text-[#003CC8] dark:text-[#00E6FF] dark:hover:text-[#00AFF0] font-semibold">術語百科 Wiki</a>
+  </footer>
+
+  <!-- #8 — FIXED BOTTOM NAV (mobile only) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white dark:bg-[#001080] border-t border-[#E2E8F0] dark:border-[#1a2744] safe-area-bottom shadow-sm">
+    <div class="flex items-center justify-around px-2 py-2">
+      <button @click="activeTab='pipeline'" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+              :class="activeTab==='pipeline' ? 'text-[#00AFF0] dark:text-[#00E6FF] bg-[#00AFF0]/10' : 'text-[#444444] dark:text-[#cbd5e1]'">
+        <i data-lucide="kanban" class="w-5 h-5"></i>
+        <span class="text-[11px] font-bold">Pipeline</span>
+      </button>
+      <button @click="activeTab='i_owe'" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer relative"
+              :class="activeTab==='i_owe' ? 'text-[#FF6E82] dark:text-[#FF6E82] bg-[#FF6E82]/10' : 'text-[#444444] dark:text-[#cbd5e1]'">
+        <i data-lucide="send" class="w-5 h-5"></i>
+        <span class="text-[11px] font-bold">I Owe</span>
+        <span x-show="overdue_count > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-[#FF6E82] text-white text-[11px] font-bold rounded-full flex items-center justify-center" x-text="overdue_count"></span>
+      </button>
+      <button @click="activeTab='they_owe'" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+              :class="activeTab==='they_owe' ? 'text-[#FFD700] dark:text-[#FFD700] bg-[#FFD700]/10' : 'text-[#444444] dark:text-[#cbd5e1]'">
+        <i data-lucide="inbox" class="w-5 h-5"></i>
+        <span class="text-[11px] font-bold">They Owe</span>
+      </button>
+      <button @click="activeTab='all_deals'" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+              :class="activeTab==='all_deals' ? 'text-[#02D28C] dark:text-[#02D28C] bg-[#02D28C]/10' : 'text-[#444444] dark:text-[#cbd5e1]'">
+        <i data-lucide="list" class="w-5 h-5"></i>
+        <span class="text-[11px] font-bold">Deals</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════ TOOLTIP COMPONENT ═══════════ -->
+  <!--
+    Usage:  <span x-data="dwTip('explanation text here')" class="dw-tip-touch relative inline-flex items-center">
+              <button @mouseenter="show=true" @mouseleave="show=false" @click="show=!show"
+                      @click.outside="show=false" @keydown.escape.window="show=false"
+                      class="dw-tip-trigger" aria-label="Help">?</button>
+              <div x-show="show" x-transition.opacity.duration.150ms class="dw-tip-bubble" x-text="text"></div>
+            </span>
+  -->
+  <script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('dwTip', (text) => ({
+      show: false,
+      text: text,
+    }));
+  });
+  </script>
+
+  <!-- ═══════════ APP LOGIC ═══════════ -->
+  <script>
+  function dashboard(){
+    // Load saved deal values from localStorage
+    const savedValues = JSON.parse(localStorage.getItem('dw_deal_values') || '{}');
+    // Apply saved values to DASHBOARD_DATA
+    DASHBOARD_DATA.deals.forEach(d => {
+      if(savedValues[d.id] !== undefined && savedValues[d.id] !== null) {
+        d.value = savedValues[d.id];
+      }
+    });
+
+    return {
+      data:DASHBOARD_DATA,
+      activeTab:'pipeline',
+      darkMode:localStorage.getItem('dw_dark')==='true',
+      selectedDeal:null,
+      showValueEditor:false,
+      _dragging:false,
+      stages:['E','D','C2','C1','B','A'],
+      tabLabels:{pipeline:'Pipeline',i_owe:'I Owe ('+DASHBOARD_DATA.i_owe.length+')',they_owe:'They Owe ('+DASHBOARD_DATA.they_owe.length+')',all_deals:'All Deals ('+DASHBOARD_DATA.deals.length+')'},
+
+      // Format baht amounts
+      fmtB(v){
+        if(!v || v === 0) return '—';
+        if(v >= 1e6) return '฿'+(v/1e6).toFixed(1)+'M';
+        if(v >= 1e3) return '฿'+(v/1e3).toFixed(0)+'K';
+        return '฿'+v.toLocaleString();
+      },
+
+      // Save deal value (input in millions)
+      saveDealValue(deal, raw){
+        const cleaned = raw.replace(/[^0-9.]/g, '');
+        const num = parseFloat(cleaned);
+        if(!isNaN(num) && num > 0){
+          deal.value = num * 1e6;
+        } else if(cleaned === '' || cleaned === '0'){
+          deal.value = null;
+        }
+        // Persist to localStorage
+        const sv = JSON.parse(localStorage.getItem('dw_deal_values') || '{}');
+        sv[deal.id] = deal.value;
+        localStorage.setItem('dw_deal_values', JSON.stringify(sv));
+      },
+
+      // Get deal value by company name (for hit list / i_owe display)
+      getDealValue(company){
+        const deal = this.data.deals.find(d => d.company === company || company.includes(d.company.split(' ')[0]));
+        return deal ? deal.value : null;
+      },
+
+      // #12 — Stakeholder role completeness (守門員/決策者/核決者)
+      // STRICT: Only counts people Peter can ACTUALLY CONTACT (has phone/email/LINE, or is the primary contact he's spoken with)
+      stakeholderRoles(deal){
+        if(!deal.stakeholders || deal.stakeholders.length === 0) return 0;
+        const generic = ['老闆','管理層','終端客戶','採購部','倉庫','經理','mc經理','海外顧問','徐總','內部','叔叔'];
+        const phonePattern = /(\+?\d[\d\s\-]{7,})/;
+        // Step 1: Filter to real named people
+        const named = deal.stakeholders.filter(s => {
+          const n = (s.name || '');
+          const nl = n.toLowerCase();
+          const t = (s.type || '').toLowerCase();
+          if(t.includes('內部資源') || t.includes('內部轉介')) return false;
+          if(!n || n.length < 2) return false;
+          if(generic.some(g => nl === g || nl.includes('/' + g) || nl.startsWith(g + ' ') || nl === 'md (' + g + ')')){return false}
+          return true;
+        });
+        // Step 2: Check if each named person is CONTACTABLE
+        const contactable = named.filter(s => {
+          const sn = (s.name || '').toLowerCase();
+          // Is this the deal's primary contact? (Peter has already spoken with them)
+          if(deal.person && sn.includes(deal.person.split(' ')[0].toLowerCase())) return true;
+          // Is this person in the contacts array with phone/email/line?
+          if(deal.contacts){
+            const c = deal.contacts.find(x => x.name && x.name.toLowerCase().includes(sn.split(' ')[0].toLowerCase()));
+            if(c && (c.phone || c.email || c.line)) return true;
+          }
+          // Does the stakeholder notes contain a phone number?
+          if(s.notes && phonePattern.test(s.notes)) return true;
+          return false;
+        });
+        // Step 3: Count roles from contactable people only
+        let count = 0;
+        const check = (fn) => { for(const s of contactable){ if(fn(s)) return true } return false };
+        const rt = s => ((s.type||'')+(s.role||'')).toLowerCase();
+        // 守門員 (Gatekeeper / Contact / Champion / 聯絡窗口)
+        if(check(s => {const r=rt(s); return r.includes('聯絡')||r.includes('champion')||r.includes('窗口')||r.includes('gatekeeper')})) count++;
+        // 決策者 (Decision analyzer / 推動者 / 技術決策)
+        if(check(s => {const r=rt(s); return (r.includes('決策')&&!r.includes('最終'))||r.includes('推動')||r.includes('技術決策')||r.includes('評估')})) count++;
+        // 核決者 (Final approver / Economic Buyer / 最終決策)
+        if(check(s => {const r=rt(s); return r.includes('economic buyer')||r.includes('最終')})) count++;
+        return Math.min(count, 3);
+      },
+
+      // #9 / #5 — Deal SLA class for border colors
+      dealSLAClass(deal){
+        const sla = this.data.stage_sla?.[deal.stage] || 30;
+        if(deal.days_at_stage > sla) return 'alert-border-red';
+        if(deal.days_at_stage > sla * 0.7) return 'alert-border-amber';
+        return '';
+      },
+
+      // Revenue computed properties
+      get weightedPipeline(){
+        return this.data.deals.reduce((sum, d) => {
+          if(!d.value) return sum;
+          const w = this.data.stage_weights[d.stage] || 0;
+          return sum + (d.value * w);
+        }, 0);
+      },
+      get totalPipeline(){
+        return this.data.deals.reduce((sum, d) => sum + (d.value || 0), 0);
+      },
+      get coverageRatio(){
+        const gap = this.data.target.annual - this.data.target.ytd_closed;
+        return gap > 0 && this.weightedPipeline > 0 ? this.weightedPipeline / gap : 0;
+      },
+      get dealsWithValue(){
+        return this.data.deals.filter(d => d.value && d.value > 0).length;
+      },
+      get dealsWithoutValue(){
+        return this.data.deals.filter(d => !d.value).length;
+      },
+      stageValue(stage){
+        return this.data.deals.filter(d => d.stage === stage).reduce((sum, d) => sum + (d.value || 0), 0);
+      },
+      stagePercent(stage){
+        const total = this.totalPipeline;
+        if(!total) return 0;
+        return (this.stageValue(stage) / total) * 100;
+      },
+      // #2 — Deal count percentage per stage (for deal-count bar)
+      stageDealPercent(stage){
+        const total = this.data.deals.length;
+        if(!total) return 0;
+        return (this.dealsInStage(stage).length / total) * 100;
+      },
+      get sortedDealsByValue(){
+        return [...this.data.deals].sort((a, b) => {
+          const so = {A:6,B:5,C1:4,C2:3,D:2,E:1};
+          const sd = (so[b.stage]||0) - (so[a.stage]||0);
+          if(sd) return sd;
+          return (b.value||0) - (a.value||0);
+        });
+      },
+
+      get stalledDeals(){
+        return this.data.deals.filter(d => {
+          const sla = this.data.stage_sla?.[d.stage] || 30;
+          return d.days_at_stage > sla;
+        }).length;
+      },
+      get today(){return new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric',year:'numeric'})},
+      get refresh_time(){try{return new Date(this.data.generated_at).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}catch(e){return'—'}},
+      get overdue_count(){return this.data.i_owe.filter(i=>i.status==='overdue').length},
+      get due_this_week(){return this.data.i_owe.length},
+      get deals_at_d_plus(){return this.data.deals.filter(d=>['D','C2','C1','B','A'].includes(d.stage)).length},
+      get auth_warning(){try{const h=(Date.now()-new Date(this.data.generated_at).getTime())/36e5;return h>2?'Data is '+Math.floor(h)+' hours old — run: gws auth login && ./refresh.sh':''}catch(e){return''}},
+      get sortedIOwe(){const o={overdue:0,due_today:1,upcoming:2};return[...this.data.i_owe].sort((a,b)=>(o[a.status]??9)-(o[b.status]??9))},
+
+      dealsInStage(s){
+        const cw={hot:3,warm:2,cold:1};
+        return this.data.deals.filter(d=>d.stage===s).sort((a,b)=>{
+          const ao=this.data.i_owe.some(i=>i.company===a.company&&i.status==='overdue')?1:0;
+          const bo=this.data.i_owe.some(i=>i.company===b.company&&i.status==='overdue')?1:0;
+          if(bo!==ao)return bo-ao;
+          if((b.value||0)!==(a.value||0)) return (b.value||0)-(a.value||0);
+          const cd=(cw[b.confidence]||0)-(cw[a.confidence]||0);if(cd)return cd;
+          const sd=this.sixScore(b)-this.sixScore(a);if(sd)return sd;
+          return(b.days_since_contact||0)-(a.days_since_contact||0);
+        });
+      },
+      sixScore(d){return Object.values(d.six_elements).filter(v=>v===true||(v&&v.status===true)).length},
+
+      // 六要素 Coaching Suggestions — grounded in Eddie's training + VP Cheng's methodology
+      sixSuggestion(key, deal){
+        const s = deal.stage;
+        const elem = deal.six_elements[key];
+        const isPartial = elem && elem.status === 'partial';
+        const hasStakeholders = deal.stakeholders && deal.stakeholders.length > 0;
+
+        const suggestions = {
+          timeline: {
+            unknown: '問客戶：「如果今天決定了，您期望系統什麼時候上線運作？」把時程連結到商業事件：新廠投產日、會計年度、法規期限、老系統合約到期。沒有Go-Live日期＝沒有急迫性。',
+            partial: '已有粗略時程。下一步：確認具體季度或月份。問：「有什麼外部壓力讓您一定要在那個時間點之前完成？」將模糊的「今年」轉為具體的「Q3前上線」。'
+          },
+          budget: {
+            unknown: '不要直接問預算（泰國文化中太直接）。改用分階段報價試探：「一般這類專案，客戶分Phase 1（核心ERP）和Phase 2（MES/WMS）投入。Phase 1大約在X到Y之間，您覺得這個方向可行嗎？」從對手報價推測預算也是好方法。',
+            partial: '客戶已在考慮預算。下一步：提出具體的分階段報價方案，讓客戶看到Phase 1最低投入門檻。問：「預算需要哪個層級核准？流程大概多久？」搞清楚預算審批鏈。'
+          },
+          requirements: {
+            unknown: '用情境問題挖痛點：「目前你們怎麼管理[庫存/生產/品質]？最困擾的是什麼？」重點是找到真正的痛苦（Pain），不是小困擾（Frustration）。痛苦＝來自外部壓力（老闆要的報表做不出來、訂單遲交）；困擾＝只是不方便。把個人痛苦擴大到組織影響：「這個問題造成多少損失？多常發生？」',
+            partial: '痛點已浮現。下一步：用痛苦鏈（Pain Chain）連結跨部門影響。問：「這個問題除了影響[倉庫]，對[生產]和[財務]有什麼連帶影響？」讓客戶自己說出「我們需要一套系統」。'
+          },
+          decision: {
+            unknown: '需要搞清楚三個角色：守門員（誰接待你？）、決策者（誰評估方案？）、核決者（誰簽字？）。問：「這個專案如果要推動，需要哪些部門參與？最後由誰拍板？」在泰國，不要直接問層級——從對話中觀察權力結構。',
+            partial: '已知部分角色。下一步：確認核決者（最終簽字的人）是誰，以及你能否直接或間接接觸到他。問現有窗口：「老闆通常怎麼做這類決定？需要看什麼資料？」然後準備讓窗口帶進去的材料。'
+          },
+          competitors: {
+            unknown: '問：「目前有在看其他供應商嗎？之前有沒有評估過類似系統？」查他們現在用什麼（Oracle/SAP/金蝶/用友/Excel/紙本）。Eddie說：知己知彼，從對手推測預算。如果對手已報價，你必須知道報了多少。',
+            partial: '已知部分競爭情況。下一步：搞清楚每個對手進展到哪一步——只是在談？已經demo？已經報價？問：「您覺得他們的方案最大的優點和缺點是什麼？」用C139的SWOT分析定位鼎捷差異化優勢。'
+          },
+          motivation: {
+            unknown: '需要找到「不得不做的理由」。Eddie的四大經典理由：(1)新建工廠無系統 (2)人工成本過高 (3)內控漏洞（偷竊/物料遺失）(4)二代接班。問：「如果不做這件事，最壞的情況會是什麼？」如果客戶說不出來，商機可能不是真的。',
+            partial: '已有Level 1動機（不得不做）。下一步：建立Level 2（不得不跟鼎捷做）。問自己：客戶為什麼不選SAP/Oracle？準備鼎捷的差異化論述：製造業專精、在地服務、性價比、分階段導入、BOI合規。Level 1沒有Level 2＝對手隨時能搶走。'
+          }
+        };
+
+        const s_key = suggestions[key];
+        if(!s_key) return '';
+        return isPartial ? s_key.partial : s_key.unknown;
+      },
+
+      // Digiwin brand stage colors
+      // Stage colors mapped to official Digiwin brand palette only
+      // E=neutral, D=Cyan, C2=Smart Blue, C1=Royal Blue, B=Yellow, A=Mint Green
+      stageColor(s){return{E:'#644CE6',D:'#00E6FF',C2:'#00AFF0',C1:'#003CC8',B:'#FFD700',A:'#02D28C'}[s]||'#644CE6'},
+
+      openDeal(d){if(this._dragging){this._dragging=false;return}this.selectedDeal=d;this.$nextTick(()=>lucide.createIcons())},
+      moveDealToStage(id,ns){const d=this.data.deals.find(x=>x.id===id);if(d&&d.stage!==ns){d.stage=ns;d.days_at_stage=0;this.$nextTick(()=>this.initSortable())}},
+
+      initSortable(){
+        setTimeout(()=>{
+          document.querySelectorAll('[data-stage]').forEach(el=>{
+            if(el._sortable)el._sortable.destroy();
+            el._sortable=new Sortable(el,{
+              group:{name:'pipeline',pull:false,put:false},
+              animation:200,delay:150,delayOnTouchOnly:true,touchStartThreshold:3,
+              ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',dragClass:'sortable-drag',
+              forceFallback:true,fallbackTolerance:3,
+              onStart:()=>{this._dragging=true},
+              onEnd:()=>{setTimeout(()=>{this._dragging=false},100)}
+            });
+          });
+        },600);
+      },
+
+      init(){
+        lucide.createIcons();
+        this.$nextTick(()=>{lucide.createIcons();this.initSortable()});
+      }
+    }
+  }
+  </script>
+</body>
+</html>

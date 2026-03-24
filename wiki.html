@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <script>if(localStorage.getItem('dw_dark')==='true')document.documentElement.classList.add('dark')</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>術語百科 — Digiwin Sales Dashboard</title>
+  <meta name="description" content="Digiwin Sales Dashboard Terminology Wiki — 銷售漏斗、六要素、決策流程等術語說明。">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{display:['Noto Sans','Noto Sans Thai','Noto Sans TC','sans-serif'],mono:['JetBrains Mono','monospace']},colors:{mesh:{light:'#F5F7FA',dark:'#000432'}}}}}
+  </script>
+  <style>
+    [x-cloak]{display:none!important}
+    body{font-family:'Noto Sans','Noto Sans Thai','Noto Sans TC',sans-serif}
+    .bg-mesh-light{background:#ffffff}
+    .bg-mesh-dark{background:linear-gradient(180deg,#000432 0%,#000864 50%,#001080 100%)}
+    .glass{background:#ffffff;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+    .dark .glass{background:#001080}
+    .glass-subtle{background:#F5F7FA}
+    .dark .glass-subtle{background:#001080}
+    .kpi{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;text-transform:uppercase;letter-spacing:0.1em}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+    .dark ::-webkit-scrollbar-thumb{background:#003CC8}
+    html{scroll-behavior:smooth}
+
+    /* Section labels */
+    .section-label{font-family:'JetBrains Mono',monospace;text-transform:uppercase;font-size:11px;letter-spacing:0.1em;color:#0369A1}
+    .dark .section-label{color:#00E6FF}
+
+    /* Sidebar */
+    .sidebar-link{transition:all 0.15s ease}
+    .sidebar-link:hover{transform:translateX(2px)}
+    .sidebar-link.active{border-left:3px solid #00AFF0;padding-left:13px;font-weight:700}
+    .dark .sidebar-link.active{border-left-color:#00E6FF}
+
+    /* Funnel */
+    .funnel-stage{clip-path:polygon(0 0,90% 0,100% 50%,90% 100%,0 100%,10% 50%)}
+    .funnel-stage:first-child{clip-path:polygon(0 0,90% 0,100% 50%,90% 100%,0 100%)}
+    .funnel-stage:last-child{clip-path:polygon(0 0,100% 0,100% 100%,0 100%,10% 50%)}
+
+    /* Tables */
+    .wiki-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+    .wiki-table th{text-align:left;padding:10px 12px;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;color:#0369A1}
+    .dark .wiki-table th{color:#00E6FF}
+    .wiki-table td{padding:10px 12px;border-top:1px solid #E2E8F0}
+    .dark .wiki-table td{border-top-color:rgba(0,175,240,0.15)}
+    .wiki-table tbody tr:hover{background:rgba(0,175,240,0.04)}
+    .dark .wiki-table tbody tr:hover{background:rgba(0,175,240,0.08)}
+    .wiki-table tbody tr:nth-child(even){background:rgba(0,175,240,0.02)}
+    .dark .wiki-table tbody tr:nth-child(even){background:rgba(0,175,240,0.04)}
+
+    /* Callout boxes */
+    .callout{border-left:4px solid;border-radius:12px;padding:12px 16px;margin:16px 0;font-size:13px;line-height:1.6}
+    .callout-info{border-color:#00AFF0;background:rgba(0,175,240,0.06)}
+    .dark .callout-info{background:rgba(0,175,240,0.12)}
+    .callout-tip{border-color:#FFD700;background:rgba(255,215,0,0.06)}
+    .dark .callout-tip{background:rgba(255,215,0,0.12)}
+    .callout-warning{border-color:#FF6E82;background:rgba(255,110,130,0.06)}
+    .dark .callout-warning{background:rgba(255,110,130,0.12)}
+
+    /* Code blocks */
+    .code-block{font-family:'JetBrains Mono',monospace;font-size:13px;background:rgba(0,8,100,0.05);border-radius:12px;padding:12px 16px;overflow-x:auto}
+    .dark .code-block{background:rgba(255,255,255,0.05)}
+
+    /* Pill tags */
+    .pill{display:inline-flex;align-items:center;padding:2px 10px;border-radius:9999px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s}
+    .pill:hover{transform:scale(1.05)}
+
+    /* Mobile sidebar overlay */
+    .sidebar-overlay{transition:opacity 0.3s ease}
+    .sidebar-panel{transition:transform 0.3s ease}
+
+    /* On this page mini nav */
+    .toc-link{font-size:12px;line-height:1.8;color:#444444;transition:all 0.15s}
+    .toc-link:hover{color:#00AFF0}
+    .dark .toc-link{color:#475569}
+    .dark .toc-link:hover{color:#00E6FF}
+
+    /* Flow diagram arrows */
+    .flow-arrow{position:relative}
+    .flow-arrow::after{content:'';position:absolute;right:-18px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-left-color:#475569}
+    .dark .flow-arrow::after{border-left-color:#003CC8}
+
+    /* Card hover effect */
+    .card-hover{transition:border-color 0.2s ease}
+    .card-hover:hover{border-color:#00AFF0 !important}
+  </style>
+</head>
+
+<body class="min-h-screen transition-colors duration-300" :class="darkMode ? 'text-white' : 'bg-white text-[#333333]'" x-data="wikiApp()" x-cloak
+      :style="darkMode ? 'background:linear-gradient(180deg,#000432 0%,#000864 50%,#001080 100%)' : ''">
+
+  <!-- ═══════════ MOBILE SIDEBAR OVERLAY ═══════════ -->
+  <div x-show="sidebarOpen" @click="sidebarOpen=false" class="sidebar-overlay fixed inset-0 bg-black/40 z-40 lg:hidden" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="bg-white dark:bg-[#000864] border-b border-[#E2E8F0] dark:border-[#003CC8] px-4 lg:px-8 py-3 sticky top-0 z-50" style="box-shadow:0 4px 24px rgba(0,0,0,0.06)">
+    <div class="max-w-[1400px] mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <!-- Hamburger (mobile) -->
+        <button @click="sidebarOpen=!sidebarOpen" class="lg:hidden w-8 h-8 rounded-xl bg-[#F5F7FA] dark:bg-[#001080] flex items-center justify-center cursor-pointer hover:bg-[#00AFF0]/10 dark:hover:bg-[#00AFF0]/20 transition-all active:scale-95" aria-label="Toggle sidebar">
+          <i data-lucide="menu" class="w-4 h-4 text-[#444444] dark:text-[#cbd5e1]"></i>
+        </button>
+        <a href="index.html" class="w-8 h-8 rounded-xl bg-[#F5F7FA] dark:bg-[#001080] flex items-center justify-center cursor-pointer hover:bg-[#00AFF0]/10 dark:hover:bg-[#00AFF0]/20 transition-all active:scale-95" aria-label="Back to Dashboard">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-[#444444] dark:text-[#cbd5e1]"></i>
+        </a>
+        <div>
+          <h1 class="text-[15px] font-bold tracking-tight text-[#000864] dark:text-white">術語百科</h1>
+          <p class="text-[11px] text-[#444444] dark:text-[#cbd5e1] section-label">Digiwin Sales Documentation</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-[#00AFF0] hover:text-[#003CC8] dark:hover:text-[#00E6FF] transition-colors section-label">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Dashboard
+        </a>
+        <button @click="darkMode=!darkMode;document.documentElement.classList.toggle('dark');localStorage.setItem('dw_dark',darkMode)"
+                class="w-8 h-8 rounded-xl bg-[#F5F7FA] dark:bg-[#001080] flex items-center justify-center cursor-pointer hover:bg-[#00AFF0]/10 dark:hover:bg-[#00AFF0]/20 transition-all duration-200 active:scale-95" aria-label="Toggle theme">
+          <i data-lucide="sun" class="w-4 h-4 dark:hidden text-amber-500"></i>
+          <i data-lucide="moon" class="w-4 h-4 hidden dark:block text-[#00E6FF]"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════ LAYOUT: SIDEBAR + MAIN + TOC ═══════════ -->
+  <div class="max-w-[1400px] mx-auto flex">
+
+    <!-- ═══════════ LEFT SIDEBAR ═══════════ -->
+    <aside class="sidebar-panel fixed lg:sticky top-0 lg:top-[53px] left-0 z-40 lg:z-10 w-72 lg:w-60 xl:w-64 h-screen lg:h-[calc(100vh-53px)] overflow-y-auto border-r border-[#E2E8F0] dark:border-[#003CC8] bg-white dark:bg-[#000864] lg:bg-[#F5F7FA] lg:dark:bg-[#000864] p-5 pt-20 lg:pt-5 flex-shrink-0 transform lg:transform-none"
+          :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+
+      <!-- Sidebar Search -->
+      <div class="mb-5">
+        <div class="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#003CC8] bg-white/50 dark:bg-[#001080]/50">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-[#444444] flex-shrink-0"></i>
+          <input type="text" x-model="search" @input="if(search.length>0){activeCategory='search';sidebarOpen=false}" placeholder="搜尋術語..."
+                 class="flex-1 bg-transparent text-[13px] outline-none placeholder:text-[#444444] min-w-0">
+          <button x-show="search.length>0" @click="search='';activeCategory=lastCategory" class="text-[#444444] hover:text-[#333333] cursor-pointer">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+        <div class="mt-1.5 text-[11px] text-[#444444] px-1 section-label" x-show="search.length>0">
+          <span x-text="filteredTerms.length + ' 筆結果'"></span>
+        </div>
+      </div>
+
+      <!-- Category Links -->
+      <nav class="space-y-1">
+        <template x-for="cat in categories" :key="cat.id">
+          <button @click="activeCategory=cat.id;lastCategory=cat.id;search='';sidebarOpen=false;$nextTick(()=>lucide.createIcons())"
+                  class="sidebar-link w-full flex items-center gap-2.5 px-4 py-2.5 min-h-[44px] rounded-xl text-[13px] text-left cursor-pointer"
+                  :class="activeCategory===cat.id ? 'active bg-[#00AFF0]/8 dark:bg-[#00AFF0]/12 text-[#00AFF0] dark:text-[#00E6FF] font-bold' : 'text-[#444444] dark:text-[#cbd5e1] hover:bg-[#F5F7FA] dark:hover:bg-[#001080]/40'">
+            <i :data-lucide="cat.icon" class="w-4 h-4 flex-shrink-0" :class="activeCategory===cat.id ? 'text-[#00AFF0] dark:text-[#00E6FF]' : 'text-[#444444]'"></i>
+            <span x-text="cat.name" class="flex-1"></span>
+            <span class="kpi text-[11px] opacity-50" x-text="termsInCategory(cat.id).length"></span>
+          </button>
+        </template>
+      </nav>
+
+      <!-- Sidebar footer -->
+      <div class="mt-8 pt-4 border-t border-[#E2E8F0] dark:border-[#003CC8]">
+        <a href="index.html" class="flex items-center gap-2 text-[12px] text-[#444444] hover:text-[#00AFF0] transition-colors">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          返回 Dashboard
+        </a>
+      </div>
+    </aside>
+
+    <!-- ═══════════ MAIN CONTENT ═══════════ -->
+    <main class="flex-1 min-w-0 px-4 lg:px-8 xl:px-12 py-6 pb-24">
+
+      <!-- ══════ SEARCH RESULTS ══════ -->
+      <div x-show="activeCategory==='search'" x-cloak>
+        <div class="mb-6">
+          <h2 class="text-xl font-extrabold tracking-tight text-[#000864] dark:text-white">搜尋結果</h2>
+          <p class="text-[13px] text-[#444444] mt-1">在所有分類中搜尋</p>
+        </div>
+        <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+          <template x-for="(term, i) in filteredTerms" :key="term.id">
+            <div :class="i > 0 ? 'border-t border-[#E2E8F0] dark:border-[#003CC8]' : ''">
+              <button @click="term._open = !term._open" class="w-full flex items-center gap-3 px-5 py-3.5 min-h-[44px] text-left cursor-pointer hover:bg-[#F5F7FA] dark:hover:bg-[#001080]/30 transition-colors">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline gap-2">
+                    <span class="text-[14px] font-bold" x-text="term.name"></span>
+                    <span class="text-[11px] text-[#444444] truncate" x-text="term.en"></span>
+                  </div>
+                </div>
+                <span class="flex-shrink-0 text-[11px] font-medium px-2 py-0.5 rounded bg-[#F5F7FA] dark:bg-[#001080] text-[#444444]" x-text="getCategoryName(term.category)"></span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200 flex-shrink-0" :class="term._open ? 'rotate-180' : ''"></i>
+              </button>
+              <div x-show="term._open" x-collapse class="px-5 pb-4">
+                <p class="text-[13px] leading-relaxed text-[#444444] dark:text-[#cbd5e1]" x-text="term.definition"></p>
+                <div class="flex flex-wrap gap-1.5 mt-2" x-show="term.related && term.related.length > 0">
+                  <template x-for="r in term.related" :key="r">
+                    <span @click="jumpToTerm(r)" class="pill bg-[#00AFF0]/10 text-[#00AFF0] dark:text-[#00E6FF] hover:bg-[#00AFF0]/20" x-text="r"></span>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </template>
+          <div x-show="filteredTerms.length === 0" class="text-center py-16 text-[#444444]">
+            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            <div class="text-[13px] font-semibold">找不到相符的術語</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ CATEGORY 1: 銷售漏斗階段 ══════ -->
+      <div x-show="activeCategory==='cat-funnel'" x-cloak>
+        <!-- Page Title -->
+        <div class="mb-8">
+          <div class="flex items-center gap-2 text-[12px] text-[#444444] mb-2 section-label">
+            <i data-lucide="funnel" class="w-3.5 h-3.5"></i>
+            <span>銷售漏斗階段</span>
+          </div>
+          <h2 class="text-2xl font-extrabold tracking-tight text-[#000864] dark:text-white">銷售漏斗階段 (Sales Funnel)</h2>
+          <p class="text-[14px] text-[#444444] dark:text-[#cbd5e1] mt-2 leading-relaxed">鼎捷使用 E/D/C2/C1/B/A 六階段管線管理所有銷售機會。每個階段代表客戶的購買旅程位置，對應不同的加權機率與 SLA 限制。</p>
+        </div>
+
+        <!-- Visual Funnel Diagram -->
+        <div class="mb-8" id="funnel-visual">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-[#00AFF0]"></i> 漏斗總覽</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-6 overflow-x-auto card-hover">
+            <div class="flex items-center justify-center gap-0 min-w-[600px]">
+              <!-- E -->
+              <div class="flex flex-col items-center">
+                <div class="w-[120px] h-16 flex items-center justify-center rounded-l-xl text-[14px] font-bold shadow-lg" style="clip-path:polygon(0 0,85% 0,100% 50%,85% 100%,0 100%);background:#E2E8F0;color:#000864">E</div>
+                <span class="text-[11px] text-[#444444] mt-1.5 kpi">5%</span>
+              </div>
+              <div class="flex flex-col items-center -ml-3">
+                <div class="w-[110px] h-14 text-white flex items-center justify-center text-[14px] font-bold shadow-lg" style="clip-path:polygon(8% 0,85% 0,100% 50%,85% 100%,8% 100%,0 50%);background:#7DD3FC">D</div>
+                <span class="text-[11px] text-[#444444] mt-1.5 kpi">10%</span>
+              </div>
+              <div class="flex flex-col items-center -ml-3">
+                <div class="w-[100px] h-12 text-white flex items-center justify-center text-[14px] font-bold shadow-lg" style="clip-path:polygon(10% 0,85% 0,100% 50%,85% 100%,10% 100%,0 50%);background:#00AFF0">C2</div>
+                <span class="text-[11px] text-[#444444] mt-1.5 kpi">25%</span>
+              </div>
+              <div class="flex flex-col items-center -ml-3">
+                <div class="w-[90px] h-11 text-white flex items-center justify-center text-[14px] font-bold shadow-lg" style="clip-path:polygon(12% 0,85% 0,100% 50%,85% 100%,12% 100%,0 50%);background:#0088CC">C1</div>
+                <span class="text-[11px] text-[#444444] mt-1.5 kpi">50%</span>
+              </div>
+              <div class="flex flex-col items-center -ml-3">
+                <div class="w-[80px] h-10 text-white flex items-center justify-center text-[14px] font-bold shadow-lg" style="clip-path:polygon(14% 0,85% 0,100% 50%,85% 100%,14% 100%,0 50%);background:#003CC8">B</div>
+                <span class="text-[11px] text-[#444444] mt-1.5 kpi">75%</span>
+              </div>
+              <div class="flex flex-col items-center -ml-3">
+                <div class="w-[70px] h-9 text-white flex items-center justify-center rounded-r-xl text-[14px] font-bold shadow-lg" style="clip-path:polygon(16% 0,100% 0,100% 100%,0 100%,0 50%);background:#000864">A</div>
+                <span class="text-[11px] text-[#444444] mt-1.5 kpi">90%</span>
+              </div>
+            </div>
+            <div class="flex justify-between mt-4 px-2 min-w-[600px]">
+              <span class="text-[11px] text-[#444444]">寬：大量潛在客戶</span>
+              <span class="text-[11px] text-[#444444]">窄：精選成交客戶</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Table -->
+        <div class="mb-8" id="funnel-table">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="table" class="w-4 h-4 text-[#00AFF0]"></i> 階段摘要表</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-x-auto card-hover">
+            <table class="wiki-table">
+              <thead>
+                <tr class="bg-[#F5F7FA] dark:bg-[#000864]/40">
+                  <th>階段</th>
+                  <th>名稱</th>
+                  <th>說明</th>
+                  <th>加權</th>
+                  <th>SLA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="font-bold kpi">E</td><td>Engagement 接觸</td><td class="text-[#444444] dark:text-[#cbd5e1]">初步接觸，尚未深入了解需求</td><td class="kpi">5%</td><td class="kpi">14 天</td></tr>
+                <tr><td class="font-bold kpi">D</td><td>Discovery 探詢</td><td class="text-[#444444] dark:text-[#cbd5e1]">需求確認，了解痛點與需求</td><td class="kpi">10%</td><td class="kpi">30 天</td></tr>
+                <tr><td class="font-bold kpi">C2</td><td>隱性需求確認 Latent Need</td><td class="text-[#444444] dark:text-[#cbd5e1]">客戶有ERP需求但自己不知道，鼎捷從外部觀察已辨識出需求（隱性需求階段的最後一關）</td><td class="kpi">25%</td><td class="kpi">30 天</td></tr>
+                <tr><td class="font-bold kpi">C1</td><td>Evaluation 評估</td><td class="text-[#444444] dark:text-[#cbd5e1]">客戶積極評估，技術 POC 或高層簡報</td><td class="kpi">50%</td><td class="kpi">45 天</td></tr>
+                <tr><td class="font-bold kpi">B</td><td>Negotiation 議價</td><td class="text-[#444444] dark:text-[#cbd5e1]">已選擇鼎捷，進行合約談判</td><td class="kpi">75%</td><td class="kpi">30 天</td></tr>
+                <tr><td class="font-bold kpi">A</td><td>Closing 簽約</td><td class="text-[#444444] dark:text-[#cbd5e1]">所有條件談妥，等待簽核</td><td class="kpi">90%</td><td class="kpi">14 天</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Stage Detail Cards -->
+        <div class="mb-8 space-y-4" id="funnel-details">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-[#00AFF0]"></i> 各階段詳細說明</h3>
+
+          <!-- E Stage -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="w-10 h-10 rounded-xl text-[#000864] flex items-center justify-center text-[15px] font-extrabold shadow" style="background:#E2E8F0">E</span>
+              <div>
+                <h4 class="text-[14px] font-bold">E 階段 — Engagement 接觸</h4>
+                <span class="text-[11px] text-[#444444] kpi">加權 5% | SLA 14 天</span>
+              </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 text-[13px]">
+              <div class="bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 rounded-xl p-3 border border-[#00AFF0]/10 dark:border-[#00AFF0]/20">
+                <div class="font-bold text-[#003CC8] dark:text-[#00E6FF] text-[12px] mb-1">客戶正在做什麼</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">目標已辨識，但客戶可能尚未意識到自身問題。沒有明確痛點表達。</p>
+              </div>
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10 dark:border-[#02D28C]/20">
+                <div class="font-bold text-[#02D28C] dark:text-[#02D28C] text-[12px] mb-1">業務員應做的事</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">建立聯繫、發送資料、邀請參加研討會或拜訪。關鍵問題：「他們有表現出任何興趣或痛點嗎？」</p>
+              </div>
+              <div class="bg-[#FFD700]/5 dark:bg-[#FFD700]/10 rounded-xl p-3 border border-[#FFD700]/10 dark:border-[#FFD700]/20">
+                <div class="font-bold text-[#B8960C] dark:text-[#FFD700] text-[12px] mb-1">推進信號</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">客戶開始描述自身問題、同意安排會議、已接觸到關鍵人物。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- D Stage -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="w-10 h-10 rounded-xl text-white flex items-center justify-center text-[15px] font-extrabold shadow" style="background:#7DD3FC;color:#000864">D</span>
+              <div>
+                <h4 class="text-[14px] font-bold">D 階段 — Discovery 探詢</h4>
+                <span class="text-[11px] text-[#444444] kpi">加權 10% | SLA 30 天</span>
+              </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 text-[13px]">
+              <div class="bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 rounded-xl p-3 border border-[#00AFF0]/10 dark:border-[#00AFF0]/20">
+                <div class="font-bold text-[#003CC8] dark:text-[#00E6FF] text-[12px] mb-1">客戶正在做什麼</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">感受到痛點，但不清楚根因或不知道有解決方案。開始描述問題。</p>
+              </div>
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10 dark:border-[#02D28C]/20">
+                <div class="font-bold text-[#02D28C] dark:text-[#02D28C] text-[12px] mb-1">業務員應做的事</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">深度探詢、了解痛點與需求。確認「不得不做」的理由（Level 1 動機）。接觸關鍵人物。</p>
+              </div>
+              <div class="bg-[#FFD700]/5 dark:bg-[#FFD700]/10 rounded-xl p-3 border border-[#FFD700]/10 dark:border-[#FFD700]/20">
+                <div class="font-bold text-[#B8960C] dark:text-[#FFD700] text-[12px] mb-1">推進信號</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">客戶開始收集供應商資訊、多個部門參與討論、要求提供方案。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- C2 Stage -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="w-10 h-10 rounded-xl text-white flex items-center justify-center text-[15px] font-extrabold shadow" style="background:#00AFF0">C2</span>
+              <div>
+                <h4 class="text-[14px] font-bold">C2 階段 — 隱性需求確認 (Latent Need Identified)</h4>
+                <span class="text-[11px] text-[#444444] kpi">加權 25% | SLA 30 天 | 隱性需求階段最後一關</span>
+              </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 text-[13px]">
+              <div class="bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 rounded-xl p-3 border border-[#00AFF0]/10 dark:border-[#00AFF0]/20">
+                <div class="font-bold text-[#003CC8] dark:text-[#00E6FF] text-[12px] mb-1">客戶正在做什麼</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">客戶有ERP需求但「自己還不知道」。痛點存在、問題浮現，但客戶尚未將問題連結到「需要一套ERP系統」。鼎捷從外部觀察已辨識出需求。</p>
+              </div>
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10 dark:border-[#02D28C]/20">
+                <div class="font-bold text-[#02D28C] dark:text-[#02D28C] text-[12px] mb-1">業務員應做的事</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">透過痛苦鏈（Pain Chain）幫助客戶自己發現「原來我需要系統」。接觸權力人士、擴大痛點認知、用跨部門案例讓客戶從隱性需求轉為顯性需求。邀請參加有效活動。</p>
+              </div>
+              <div class="bg-[#FFD700]/5 dark:bg-[#FFD700]/10 rounded-xl p-3 border border-[#FFD700]/10 dark:border-[#FFD700]/20">
+                <div class="font-bold text-[#B8960C] dark:text-[#FFD700] text-[12px] mb-1">推進信號</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">客戶自己說出「我們需要一套系統」（從隱性→顯性）。正式立項、指派專案負責人、開始評估。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- C1 Stage -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="w-10 h-10 rounded-xl text-white flex items-center justify-center text-[15px] font-extrabold shadow" style="background:#0088CC">C1</span>
+              <div>
+                <h4 class="text-[14px] font-bold">C1 階段 — Evaluation 評估</h4>
+                <span class="text-[11px] text-[#444444] kpi">加權 50% | SLA 45 天</span>
+              </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 text-[13px]">
+              <div class="bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 rounded-xl p-3 border border-[#00AFF0]/10 dark:border-[#00AFF0]/20">
+                <div class="font-bold text-[#003CC8] dark:text-[#00E6FF] text-[12px] mb-1">客戶正在做什麼</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">專案正式成立，積極評估供應商。可能進行技術 POC、Demo、高層簡報。</p>
+              </div>
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10 dark:border-[#02D28C]/20">
+                <div class="font-bold text-[#02D28C] dark:text-[#02D28C] text-[12px] mb-1">業務員應做的事</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">安排 Demo、確認需求與時程、提交正式提案。所有六要素至少部分已知（Stage Gate）。</p>
+              </div>
+              <div class="bg-[#FFD700]/5 dark:bg-[#FFD700]/10 rounded-xl p-3 border border-[#FFD700]/10 dark:border-[#FFD700]/20">
+                <div class="font-bold text-[#B8960C] dark:text-[#FFD700] text-[12px] mb-1">推進信號</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">客戶決定選擇鼎捷、進入價格談判、要求合約草案。</p>
+              </div>
+            </div>
+            <div class="callout callout-warning mt-4">
+              <div class="flex items-start gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-[#FF6E82] mt-0.5 flex-shrink-0"></i>
+                <div><strong>Stage Gate：</strong>C1 是六要素的關卡。進入 C1 時，所有六要素至少必須部分確認。否則案件不應進入此階段。</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B Stage -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="w-10 h-10 rounded-xl text-white flex items-center justify-center text-[15px] font-extrabold shadow" style="background:#003CC8">B</span>
+              <div>
+                <h4 class="text-[14px] font-bold">B 階段 — Negotiation 議價</h4>
+                <span class="text-[11px] text-[#444444] kpi">加權 75% | SLA 30 天</span>
+              </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 text-[13px]">
+              <div class="bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 rounded-xl p-3 border border-[#00AFF0]/10 dark:border-[#00AFF0]/20">
+                <div class="font-bold text-[#003CC8] dark:text-[#00E6FF] text-[12px] mb-1">客戶正在做什麼</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">已決定選擇鼎捷，進行合約條款與價格談判。</p>
+              </div>
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10 dark:border-[#02D28C]/20">
+                <div class="font-bold text-[#02D28C] dark:text-[#02D28C] text-[12px] mb-1">業務員應做的事</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">安排高層拜訪、案例參訪、確認所有六要素已完整確認（6/6）。議價策略。</p>
+              </div>
+              <div class="bg-[#FFD700]/5 dark:bg-[#FFD700]/10 rounded-xl p-3 border border-[#FFD700]/10 dark:border-[#FFD700]/20">
+                <div class="font-bold text-[#B8960C] dark:text-[#FFD700] text-[12px] mb-1">推進信號</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">價格達成共識、合約條款確認、等待最終簽核。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- A Stage -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="w-10 h-10 rounded-xl text-white flex items-center justify-center text-[15px] font-extrabold shadow" style="background:#000864">A</span>
+              <div>
+                <h4 class="text-[14px] font-bold">A 階段 — Closing 簽約</h4>
+                <span class="text-[11px] text-[#444444] kpi">加權 90% | SLA 14 天</span>
+              </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 text-[13px]">
+              <div class="bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 rounded-xl p-3 border border-[#00AFF0]/10 dark:border-[#00AFF0]/20">
+                <div class="font-bold text-[#003CC8] dark:text-[#00E6FF] text-[12px] mb-1">客戶正在做什麼</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">所有條件已談妥，等待最終簽核或蓋章。合約在核決者手上。</p>
+              </div>
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10 dark:border-[#02D28C]/20">
+                <div class="font-bold text-[#02D28C] dark:text-[#02D28C] text-[12px] mb-1">業務員應做的事</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">排除最後障礙、確認簽約日期、準備交付啟動。問：「還有什麼能阻止簽約？」</p>
+              </div>
+              <div class="bg-[#FFD700]/5 dark:bg-[#FFD700]/10 rounded-xl p-3 border border-[#FFD700]/10 dark:border-[#FFD700]/20">
+                <div class="font-bold text-[#B8960C] dark:text-[#FFD700] text-[12px] mb-1">推進信號</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">合約簽署完成，進入交付階段。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Callout -->
+        <div class="callout callout-tip" id="funnel-callout">
+          <div class="flex items-start gap-2">
+            <i data-lucide="lightbulb" class="w-4 h-4 text-[#FFD700] mt-0.5 flex-shrink-0"></i>
+            <div><strong>常見失敗模式：</strong>業務員擁有大量 E/D 階段的潛在客戶，但 A-C1 管線空空。他們在「維持聯繫密度」而非「經營漏斗」。重點：找到真正的痛苦（Pain），不是小困擾（Frustration）。</div>
+          </div>
+        </div>
+
+        <!-- Term Glossary for this category -->
+        <div class="mt-8" id="funnel-glossary">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-[#00AFF0]"></i> 相關術語</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+            <template x-for="(term, i) in termsInCategory('cat-funnel')" :key="term.id">
+              <div :class="i > 0 ? 'border-t border-[#E2E8F0]/60 dark:border-[#003CC8]/60' : ''">
+                <button @click="term._open = !term._open" class="w-full flex items-center gap-3 px-5 py-3 min-h-[44px] text-left cursor-pointer hover:bg-[#F5F7FA] dark:hover:bg-[#001080]/30 transition-colors">
+                  <div class="flex-1 min-w-0 flex items-baseline gap-2">
+                    <span class="text-[13px] font-bold" x-text="term.name"></span>
+                    <span class="text-[11px] text-[#444444] truncate" x-text="term.en"></span>
+                  </div>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200 flex-shrink-0" :class="term._open ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="term._open" x-collapse class="px-5 pb-3">
+                  <p class="text-[13px] leading-relaxed text-[#444444] dark:text-[#cbd5e1]" x-text="term.definition"></p>
+                  <div class="flex flex-wrap gap-1.5 mt-2" x-show="term.related && term.related.length > 0">
+                    <template x-for="r in term.related" :key="r">
+                      <span @click="jumpToTerm(r)" class="pill bg-[#00AFF0]/10 text-[#00AFF0] dark:text-[#00E6FF] hover:bg-[#00AFF0]/20" x-text="r"></span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ CATEGORY 2: 項目六要素 ══════ -->
+      <div x-show="activeCategory==='cat-six'" x-cloak>
+        <div class="mb-8">
+          <div class="flex items-center gap-2 text-[12px] text-[#444444] mb-2 section-label">
+            <i data-lucide="hexagon" class="w-3.5 h-3.5"></i>
+            <span>項目六要素</span>
+          </div>
+          <h2 class="text-2xl font-extrabold tracking-tight text-[#000864] dark:text-white">項目六要素 (Six Elements)</h2>
+          <p class="text-[14px] text-[#444444] dark:text-[#cbd5e1] mt-2 leading-relaxed">鼎捷評估案件成熟度的六個維度。全部確認（6/6 綠燈）才算案件完全成熟，可以進入簽約。</p>
+        </div>
+
+        <!-- Visual 6-Element Grid -->
+        <div class="mb-8" id="six-visual">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="grid-3x3" class="w-4 h-4 text-[#644CE6]"></i> 六要素總覽</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-6 card-hover">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div class="text-center p-4 rounded-xl bg-[#644CE6]/5 dark:bg-[#644CE6]/10 border border-[#644CE6]/15 dark:border-[#644CE6]/30">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-[#644CE6]/15 flex items-center justify-center"><i data-lucide="calendar-clock" class="w-5 h-5 text-[#644CE6]"></i></div>
+                <div class="text-[13px] font-bold">時程</div>
+                <div class="text-[11px] text-[#444444]">Timeline</div>
+              </div>
+              <div class="text-center p-4 rounded-xl bg-[#02D28C]/5 dark:bg-[#02D28C]/10 border border-[#02D28C]/15 dark:border-[#02D28C]/30">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-[#02D28C]/15 flex items-center justify-center"><i data-lucide="banknote" class="w-5 h-5 text-[#02D28C]"></i></div>
+                <div class="text-[13px] font-bold">預算</div>
+                <div class="text-[11px] text-[#444444]">Budget</div>
+              </div>
+              <div class="text-center p-4 rounded-xl bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 border border-[#00AFF0]/15 dark:border-[#00AFF0]/30">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-[#00AFF0]/15 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-5 h-5 text-[#00AFF0]"></i></div>
+                <div class="text-[13px] font-bold">需求</div>
+                <div class="text-[11px] text-[#444444]">Requirements</div>
+              </div>
+              <div class="text-center p-4 rounded-xl bg-[#FFD700]/5 dark:bg-[#FFD700]/10 border border-[#FFD700]/15 dark:border-[#FFD700]/30">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-[#FFD700]/15 flex items-center justify-center"><i data-lucide="users" class="w-5 h-5 text-[#FFD700]"></i></div>
+                <div class="text-[13px] font-bold">決策流程</div>
+                <div class="text-[11px] text-[#444444]">Decision Process</div>
+              </div>
+              <div class="text-center p-4 rounded-xl bg-[#FF6E82]/5 dark:bg-[#FF6E82]/10 border border-[#FF6E82]/15 dark:border-[#FF6E82]/30">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-[#FF6E82]/15 flex items-center justify-center"><i data-lucide="swords" class="w-5 h-5 text-[#FF6E82]"></i></div>
+                <div class="text-[13px] font-bold">競爭對手</div>
+                <div class="text-[11px] text-[#444444]">Competitors</div>
+              </div>
+              <div class="text-center p-4 rounded-xl bg-[#FF6E82]/5 dark:bg-[#FF6E82]/10 border border-[#FF6E82]/15 dark:border-[#FF6E82]/30">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-[#FF6E82]/15 flex items-center justify-center"><i data-lucide="flame" class="w-5 h-5 text-[#FF6E82]"></i></div>
+                <div class="text-[13px] font-bold">動機</div>
+                <div class="text-[11px] text-[#444444]">Motivation</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Element Detail Cards -->
+        <div class="mb-8 space-y-4" id="six-details">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-[#644CE6]"></i> 各要素詳細說明</h3>
+
+          <!-- Timeline -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#644CE6]/15 flex items-center justify-center"><i data-lucide="calendar-clock" class="w-4 h-4 text-[#644CE6]"></i></div>
+              <div><h4 class="text-[14px] font-bold">時程 Timeline</h4><span class="text-[11px] text-[#444444]">Go-Live Timeline</span></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">客戶預期的系統<strong>上線運作時間</strong>（不是簽約日期、不是下次會議日期）。「系統上線、使用者正在使用」的那一天。</p>
+            <div class="grid md:grid-cols-2 gap-3 text-[12px]">
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10">
+                <div class="font-bold text-[#02D28C] mb-1">已確認的例子</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">「2027 年 Q3 上線」或「在新工廠 2027 年 1 月開工前完成」</p>
+              </div>
+              <div class="bg-[#FF6E82]/5 dark:bg-[#FF6E82]/10 rounded-xl p-3 border border-[#FF6E82]/10">
+                <div class="font-bold text-[#FF6E82] mb-1">常見錯誤</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">將「下次會議日期」當作時程，或模糊的「今年內」而無具體季度。沒有時程 = 沒有急迫性 = 案件可能不是真的。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Budget -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#02D28C]/15 flex items-center justify-center"><i data-lucide="banknote" class="w-4 h-4 text-[#02D28C]"></i></div>
+              <div><h4 class="text-[14px] font-bold">預算 Budget</h4><span class="text-[11px] text-[#444444]">Phased Budget</span></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">客戶的預算範圍與分階段投入計畫。可提出總預算後分階段：Phase 1（ERP 核心）+ Phase 2（MES/WMS）。</p>
+            <div class="grid md:grid-cols-2 gap-3 text-[12px]">
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10">
+                <div class="font-bold text-[#02D28C] mb-1">已確認的例子</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">已有正式 IT 預算編列、預算審批流程明確、已同意分階段報價。</p>
+              </div>
+              <div class="bg-[#FF6E82]/5 dark:bg-[#FF6E82]/10 rounded-xl p-3 border border-[#FF6E82]/10">
+                <div class="font-bold text-[#FF6E82] mb-1">常見錯誤</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">「需要再申請」= 部分確認。完全未討論預算 = 非常早期階段。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Requirements -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#00AFF0]/15 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-4 h-4 text-[#00AFF0]"></i></div>
+              <div><h4 class="text-[14px] font-bold">需求 Requirements</h4><span class="text-[11px] text-[#444444]">Pain-Tied Requirements</span></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">不是功能清單，而是「因為什麼痛苦，所以需要什麼能力」。必須與痛點、不得不做、不得不跟鼎捷做直接連結。</p>
+            <div class="grid md:grid-cols-2 gap-3 text-[12px]">
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10">
+                <div class="font-bold text-[#02D28C] mb-1">已確認的例子</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">「因為庫存盲區（痛點），所以需要 WMS（需求）」— 具體問題對應具體能力。</p>
+              </div>
+              <div class="bg-[#FF6E82]/5 dark:bg-[#FF6E82]/10 rounded-xl p-3 border border-[#FF6E82]/10">
+                <div class="font-bold text-[#FF6E82] mb-1">常見錯誤</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">只列功能清單而不連結痛點。「我們需要 ERP」不是需求，「因為帳務混亂導致月結延遲需要 ERP」才是。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Decision Process -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#FFD700]/15 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4 text-[#FFD700]"></i></div>
+              <div><h4 class="text-[14px] font-bold">決策流程 Decision Process</h4><span class="text-[11px] text-[#444444]">3-Role Decision Chain</span></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">客戶內部的決策鏈：守門員 → 決策者 → 核決者。需確認每個角色是誰、其影響力，以及最終簽核流程。</p>
+            <div class="callout callout-info">
+              <div class="flex items-start gap-2">
+                <i data-lucide="info" class="w-4 h-4 text-[#00AFF0] mt-0.5 flex-shrink-0"></i>
+                <div>詳細角色說明請參見「<span @click="activeCategory='cat-roles';$nextTick(()=>lucide.createIcons())" class="text-[#00AFF0] hover:text-[#003CC8] dark:hover:text-[#00E6FF] cursor-pointer font-bold">角色與關係人</span>」分類。</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Competitors -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#FF6E82]/15 flex items-center justify-center"><i data-lucide="swords" class="w-4 h-4 text-[#FF6E82]"></i></div>
+              <div><h4 class="text-[14px] font-bold">競爭對手 Competitors</h4><span class="text-[11px] text-[#444444]">Competitive Landscape</span></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">完整的競爭格局：目前使用的系統、正在評估的新供應商、與每個競爭者的進度（只在聊？已 Demo？已報價？）。</p>
+            <div class="grid md:grid-cols-2 gap-3 text-[12px]">
+              <div class="bg-[#02D28C]/5 dark:bg-[#02D28C]/10 rounded-xl p-3 border border-[#02D28C]/10">
+                <div class="font-bold text-[#02D28C] mb-1">已確認的例子</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">「客戶同時評估金蝶（已 Demo）和用友（收到報價），目前用 Oracle 但即將到期。」</p>
+              </div>
+              <div class="bg-[#FF6E82]/5 dark:bg-[#FF6E82]/10 rounded-xl p-3 border border-[#FF6E82]/10">
+                <div class="font-bold text-[#FF6E82] mb-1">常見錯誤</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">忽略「維持現狀」也是競爭選項。不知道對手報價或進度。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Motivation -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#FF6E82]/15 flex items-center justify-center"><i data-lucide="flame" class="w-4 h-4 text-[#FF6E82]"></i></div>
+              <div><h4 class="text-[14px] font-bold">動機 Motivation</h4><span class="text-[11px] text-[#444444]">Two-Level Motivation</span></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">兩層動機都必須確認：</p>
+            <div class="grid md:grid-cols-2 gap-3 text-[12px] mb-3">
+              <div class="bg-[#FF6E82]/5 dark:bg-[#FF6E82]/10 rounded-xl p-3 border border-[#FF6E82]/10">
+                <div class="font-bold text-[#FF6E82] mb-1">Level 1：不得不做</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">為什麼客戶「現在」必須行動？經典四因：新工廠 / 人力成本 / 內控 / 接班。加上：競爭壓力、法規、系統到期。</p>
+              </div>
+              <div class="bg-[#644CE6]/5 dark:bg-[#644CE6]/10 rounded-xl p-3 border border-[#644CE6]/10">
+                <div class="font-bold text-[#644CE6] dark:text-[#A78BFA] mb-1">Level 2：不得不跟鼎捷做</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">為什麼不選其他供應商？鼎捷差異化：44年製造專精、一站式解決方案、BOI/保稅模組、分階段實施、會計師合作策略。</p>
+              </div>
+            </div>
+            <div class="callout callout-warning">
+              <div class="flex items-start gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-[#FF6E82] mt-0.5 flex-shrink-0"></i>
+                <div>Level 1 沒有 = 案件會永遠停滯。Level 1 有但 Level 2 沒有 = 競爭對手可以在任何階段搶走。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage-Gate Table -->
+        <div class="mb-8" id="six-gate">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-[#644CE6]"></i> 六要素階段對照表</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-x-auto card-hover">
+            <table class="wiki-table">
+              <thead>
+                <tr class="bg-[#F5F7FA] dark:bg-[#000864]/40">
+                  <th>階段</th>
+                  <th>應已確認的要素</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="font-bold kpi">E</td><td class="text-[#444444] dark:text-[#cbd5e1]">無要求 — 僅辨識目標</td></tr>
+                <tr><td class="font-bold kpi">D</td><td class="text-[#444444] dark:text-[#cbd5e1]"><span class="pill bg-[#FF6E82]/10 text-[#FF6E82] mr-1">動機（部分）</span> <span class="pill bg-[#00AFF0]/10 text-[#00AFF0]">需求（萌芽痛點）</span></td></tr>
+                <tr><td class="font-bold kpi">C2</td><td class="text-[#444444] dark:text-[#cbd5e1]">+ <span class="pill bg-[#644CE6]/10 text-[#644CE6] dark:text-[#A78BFA] mr-1">時程（粗略）</span> <span class="pill bg-[#FFD700]/10 text-[#B8960C] dark:text-[#FFD700]">決策流程（誰參與）</span></td></tr>
+                <tr><td class="font-bold kpi text-[#FF6E82]">C1 (Gate)</td><td class="text-[#444444] dark:text-[#cbd5e1]"><strong>全部 6 要素</strong>至少部分已知 — 這是關卡</td></tr>
+                <tr><td class="font-bold kpi">B</td><td class="text-[#444444] dark:text-[#cbd5e1]">全部 6 要素已確認且詳細</td></tr>
+                <tr><td class="font-bold kpi">A</td><td class="text-[#444444] dark:text-[#cbd5e1]">全部 6 要素鎖定 — 本月簽約</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Term Glossary -->
+        <div class="mt-8" id="six-glossary">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-[#644CE6]"></i> 相關術語</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+            <template x-for="(term, i) in termsInCategory('cat-six')" :key="term.id">
+              <div :class="i > 0 ? 'border-t border-[#E2E8F0]/60 dark:border-[#003CC8]/60' : ''">
+                <button @click="term._open = !term._open" class="w-full flex items-center gap-3 px-5 py-3 min-h-[44px] text-left cursor-pointer hover:bg-[#F5F7FA] dark:hover:bg-[#001080]/30 transition-colors">
+                  <div class="flex-1 min-w-0 flex items-baseline gap-2">
+                    <span class="text-[13px] font-bold" x-text="term.name"></span>
+                    <span class="text-[11px] text-[#444444] truncate" x-text="term.en"></span>
+                  </div>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200 flex-shrink-0" :class="term._open ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="term._open" x-collapse class="px-5 pb-3">
+                  <p class="text-[13px] leading-relaxed text-[#444444] dark:text-[#cbd5e1]" x-text="term.definition"></p>
+                  <div class="flex flex-wrap gap-1.5 mt-2" x-show="term.related && term.related.length > 0">
+                    <template x-for="r in term.related" :key="r">
+                      <span @click="jumpToTerm(r)" class="pill bg-[#00AFF0]/10 text-[#00AFF0] dark:text-[#00E6FF] hover:bg-[#00AFF0]/20" x-text="r"></span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ CATEGORY 3: 角色與關係人 ══════ -->
+      <div x-show="activeCategory==='cat-roles'" x-cloak>
+        <div class="mb-8">
+          <div class="flex items-center gap-2 text-[12px] text-[#444444] mb-2 section-label">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i>
+            <span>角色與關係人</span>
+          </div>
+          <h2 class="text-2xl font-extrabold tracking-tight text-[#000864] dark:text-white">角色與關係人 (Roles & Stakeholders)</h2>
+          <p class="text-[14px] text-[#444444] dark:text-[#cbd5e1] mt-2 leading-relaxed">每個案件都需要辨識客戶端的三個關鍵角色。Dashboard 上的「X/3 roles」代表已辨識的角色數量。</p>
+        </div>
+
+        <!-- Visual Decision Chain -->
+        <div class="mb-8" id="roles-chain">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="workflow" class="w-4 h-4 text-[#FFD700]"></i> 決策鏈</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-6 card-hover">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
+              <!-- Gatekeeper -->
+              <div class="text-center p-5 rounded-xl bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 border border-[#00AFF0]/15 dark:border-[#00AFF0]/30 w-full md:w-52">
+                <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#00AFF0]/15 flex items-center justify-center"><i data-lucide="shield" class="w-6 h-6 text-[#00AFF0]"></i></div>
+                <div class="text-[15px] font-bold">守門員</div>
+                <div class="text-[12px] text-[#444444] mb-2">Gatekeeper</div>
+                <p class="text-[12px] text-[#444444] dark:text-[#cbd5e1]">通常是 IT 部門。守護公司入口。<strong>可以阻擋，但不能批准。</strong></p>
+              </div>
+              <!-- Arrow -->
+              <div class="hidden md:flex items-center px-2">
+                <div class="w-8 h-0.5 bg-[#E2E8F0] dark:bg-[#003CC8]"></div>
+                <div class="w-0 h-0 border-t-4 border-b-4 border-l-6 border-transparent border-l-[#E2E8F0] dark:border-l-[#003CC8]"></div>
+              </div>
+              <div class="md:hidden"><i data-lucide="arrow-down" class="w-5 h-5 text-[#E2E8F0]"></i></div>
+              <!-- Decision Maker -->
+              <div class="text-center p-5 rounded-xl bg-[#FFD700]/5 dark:bg-[#FFD700]/10 border border-[#FFD700]/15 dark:border-[#FFD700]/30 w-full md:w-52">
+                <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#FFD700]/15 flex items-center justify-center"><i data-lucide="brain" class="w-6 h-6 text-[#FFD700]"></i></div>
+                <div class="text-[15px] font-bold">決策者</div>
+                <div class="text-[12px] text-[#444444] mb-2">Decision Maker</div>
+                <p class="text-[12px] text-[#444444] dark:text-[#cbd5e1]">分析選項、推薦方案。通常是部門主管。<strong>可以影響，但不能單獨拍板。</strong></p>
+              </div>
+              <!-- Arrow -->
+              <div class="hidden md:flex items-center px-2">
+                <div class="w-8 h-0.5 bg-[#E2E8F0] dark:bg-[#003CC8]"></div>
+                <div class="w-0 h-0 border-t-4 border-b-4 border-l-6 border-transparent border-l-[#E2E8F0] dark:border-l-[#003CC8]"></div>
+              </div>
+              <div class="md:hidden"><i data-lucide="arrow-down" class="w-5 h-5 text-[#E2E8F0]"></i></div>
+              <!-- Approver -->
+              <div class="text-center p-5 rounded-xl bg-[#02D28C]/5 dark:bg-[#02D28C]/10 border border-[#02D28C]/15 dark:border-[#02D28C]/30 w-full md:w-52">
+                <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#02D28C]/15 flex items-center justify-center"><i data-lucide="stamp" class="w-6 h-6 text-[#02D28C]"></i></div>
+                <div class="text-[15px] font-bold">核決者</div>
+                <div class="text-[12px] text-[#444444] mb-2">Final Approver</div>
+                <p class="text-[12px] text-[#444444] dark:text-[#cbd5e1]">最終拍板的人。通常是老闆或財務最高主管。<strong>簽約需要此人。</strong></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3/3 Roles Explanation -->
+        <div class="mb-8" id="roles-explanation">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="user-check" class="w-4 h-4 text-[#FFD700]"></i> 3/3 Roles 計算規則</h3>
+          <div class="callout callout-warning">
+            <div class="flex items-start gap-2">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-[#FF6E82] mt-0.5 flex-shrink-0"></i>
+              <div><strong>只計入有名有姓且有實際聯繫方式的真實人物。</strong>「老闆」、「管理層」、「IT 那邊的人」不計入。必須有電話、Email 或 LINE 聯絡方式。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roles Table -->
+        <div class="mb-8" id="roles-table">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="table" class="w-4 h-4 text-[#FFD700]"></i> 角色對照表</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-x-auto card-hover">
+            <table class="wiki-table">
+              <thead>
+                <tr class="bg-[#F5F7FA] dark:bg-[#000864]/40">
+                  <th>角色</th>
+                  <th>中文</th>
+                  <th>English</th>
+                  <th>可以做</th>
+                  <th>不能做</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><i data-lucide="shield" class="w-4 h-4 text-[#00AFF0] inline"></i></td>
+                  <td class="font-bold">守門員</td>
+                  <td class="text-[#444444]">Gatekeeper</td>
+                  <td class="text-[#444444] dark:text-[#cbd5e1]">安排會議、傳遞資訊、阻擋供應商</td>
+                  <td class="text-[#444444] dark:text-[#cbd5e1]">批准預算、做最終決策</td>
+                </tr>
+                <tr>
+                  <td><i data-lucide="brain" class="w-4 h-4 text-[#FFD700] inline"></i></td>
+                  <td class="font-bold">決策者</td>
+                  <td class="text-[#444444]">Decision Maker</td>
+                  <td class="text-[#444444] dark:text-[#cbd5e1]">技術/業務評估、推薦方案、影響決策</td>
+                  <td class="text-[#444444] dark:text-[#cbd5e1]">單獨批准購買</td>
+                </tr>
+                <tr>
+                  <td><i data-lucide="stamp" class="w-4 h-4 text-[#02D28C] inline"></i></td>
+                  <td class="font-bold">核決者</td>
+                  <td class="text-[#444444]">Economic Buyer</td>
+                  <td class="text-[#444444] dark:text-[#cbd5e1]">最終拍板、簽約、批准預算</td>
+                  <td class="text-[#444444] dark:text-[#cbd5e1]">可能不出席供應商會議</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Term Glossary -->
+        <div class="mt-8" id="roles-glossary">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-[#FFD700]"></i> 相關術語</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+            <template x-for="(term, i) in termsInCategory('cat-roles')" :key="term.id">
+              <div :class="i > 0 ? 'border-t border-[#E2E8F0]/60 dark:border-[#003CC8]/60' : ''">
+                <button @click="term._open = !term._open" class="w-full flex items-center gap-3 px-5 py-3 min-h-[44px] text-left cursor-pointer hover:bg-[#F5F7FA] dark:hover:bg-[#001080]/30 transition-colors">
+                  <div class="flex-1 min-w-0 flex items-baseline gap-2">
+                    <span class="text-[13px] font-bold" x-text="term.name"></span>
+                    <span class="text-[11px] text-[#444444] truncate" x-text="term.en"></span>
+                  </div>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200 flex-shrink-0" :class="term._open ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="term._open" x-collapse class="px-5 pb-3">
+                  <p class="text-[13px] leading-relaxed text-[#444444] dark:text-[#cbd5e1]" x-text="term.definition"></p>
+                  <div class="flex flex-wrap gap-1.5 mt-2" x-show="term.related && term.related.length > 0">
+                    <template x-for="r in term.related" :key="r">
+                      <span @click="jumpToTerm(r)" class="pill bg-[#00AFF0]/10 text-[#00AFF0] dark:text-[#00E6FF] hover:bg-[#00AFF0]/20" x-text="r"></span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ CATEGORY 4: 指標與數字 ══════ -->
+      <div x-show="activeCategory==='cat-metrics'" x-cloak>
+        <div class="mb-8">
+          <div class="flex items-center gap-2 text-[12px] text-[#444444] mb-2 section-label">
+            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+            <span>指標與數字</span>
+          </div>
+          <h2 class="text-2xl font-extrabold tracking-tight text-[#000864] dark:text-white">指標與數字 (Metrics & Numbers)</h2>
+          <p class="text-[14px] text-[#444444] dark:text-[#cbd5e1] mt-2 leading-relaxed">Dashboard 上使用的所有關鍵數字指標，分為管線指標、活動指標與營收指標三大類。</p>
+        </div>
+
+        <!-- Pipeline Metrics -->
+        <div class="mb-8" id="metrics-pipeline">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-[#02D28C]"></i> 管線指標 (Pipeline Metrics)</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+            <div class="p-4 border-b border-[#E2E8F0] dark:border-[#003CC8]">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-[14px] font-bold">加權管線值 (Weighted Pipeline)</div>
+                  <div class="text-[12px] text-[#444444] mt-0.5">預測營收的核心指標</div>
+                </div>
+              </div>
+              <div class="code-block mt-3">加權管線值 = <span class="text-[#00AFF0]">&#931;</span> (案件金額 <span class="text-[#444444]">x</span> 階段權重)</div>
+              <div class="mt-3 p-3 rounded-xl bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 text-[12px] border border-[#00AFF0]/10">
+                <div class="font-bold text-[#003CC8] dark:text-[#00E6FF] mb-1">計算範例</div>
+                <p class="text-[#444444] dark:text-[#cbd5e1]">一筆 <span class="kpi">&#3647;10M</span> 的案件在 C1 階段 → 加權值 = <span class="kpi">&#3647;10M x 50% = &#3647;5M</span></p>
+              </div>
+            </div>
+            <div class="p-4 border-b border-[#E2E8F0] dark:border-[#003CC8]">
+              <div class="text-[14px] font-bold">管線總值 (Total Pipeline)</div>
+              <div class="text-[12px] text-[#444444] dark:text-[#cbd5e1] mt-1">所有案件金額加總，不考慮階段權重。代表「所有案件都成交」的理論最大營收。</div>
+            </div>
+            <div class="p-4">
+              <div class="text-[14px] font-bold">覆蓋率 (Coverage Ratio)</div>
+              <div class="code-block mt-2">覆蓋率 = 加權管線值 <span class="text-[#444444]">/</span> 年度目標缺口</div>
+              <div class="mt-2 text-[12px] text-[#444444] dark:text-[#cbd5e1]">
+                <span class="kpi text-[#02D28C] font-bold">3x</span> 覆蓋率代表管線健康。例如年度目標 <span class="kpi">&#3647;150M</span>，加權管線需要 <span class="kpi">&#3647;450M</span>。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Metrics -->
+        <div class="mb-8" id="metrics-activity">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-[#02D28C]"></i> 活動指標 (Activity Metrics)</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+            <div class="p-4 border-b border-[#E2E8F0] dark:border-[#003CC8]">
+              <div class="text-[14px] font-bold">SLA (Service Level Agreement)</div>
+              <div class="text-[12px] text-[#444444] dark:text-[#cbd5e1] mt-1 mb-2">各階段允許停留的最大天數。超過會以紅色邊框警示。</div>
+              <div class="flex flex-wrap gap-2">
+                <span class="kpi text-[12px] px-2.5 py-1 rounded-xl bg-[#F5F7FA] dark:bg-[#001080]">E=14天</span>
+                <span class="kpi text-[12px] px-2.5 py-1 rounded-xl bg-[#F5F7FA] dark:bg-[#001080]">D=30天</span>
+                <span class="kpi text-[12px] px-2.5 py-1 rounded-xl bg-[#F5F7FA] dark:bg-[#001080]">C2=30天</span>
+                <span class="kpi text-[12px] px-2.5 py-1 rounded-xl bg-[#F5F7FA] dark:bg-[#001080]">C1=45天</span>
+                <span class="kpi text-[12px] px-2.5 py-1 rounded-xl bg-[#F5F7FA] dark:bg-[#001080]">B=30天</span>
+                <span class="kpi text-[12px] px-2.5 py-1 rounded-xl bg-[#F5F7FA] dark:bg-[#001080]">A=14天</span>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="text-[14px] font-bold">Days at Stage (階段停留天數)</div>
+              <div class="text-[12px] text-[#444444] dark:text-[#cbd5e1] mt-1">案件在當前階段已停留的天數。</div>
+              <div class="flex items-center gap-3 mt-2 text-[12px]">
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-[#02D28C] inline-block"></span> &lt;70% SLA</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-[#FFD700] inline-block"></span> 70-100% SLA</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-[#FF6E82] inline-block"></span> &gt;100% SLA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Callout -->
+        <div class="callout callout-info" id="metrics-callout">
+          <div class="flex items-start gap-2">
+            <i data-lucide="calculator" class="w-4 h-4 text-[#00AFF0] mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong>加權管線值計算範例：</strong><br>
+              <span class="kpi text-[12px]">
+                Deal A (C1): &#3647;10M x 50% = &#3647;5M<br>
+                Deal B (B): &#3647;8M x 75% = &#3647;6M<br>
+                Deal C (D): &#3647;15M x 10% = &#3647;1.5M<br>
+                <strong>加權管線值 = &#3647;12.5M</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Term Glossary -->
+        <div class="mt-8" id="metrics-glossary">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-[#02D28C]"></i> 相關術語</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+            <template x-for="(term, i) in termsInCategory('cat-metrics')" :key="term.id">
+              <div :class="i > 0 ? 'border-t border-[#E2E8F0]/60 dark:border-[#003CC8]/60' : ''">
+                <button @click="term._open = !term._open" class="w-full flex items-center gap-3 px-5 py-3 min-h-[44px] text-left cursor-pointer hover:bg-[#F5F7FA] dark:hover:bg-[#001080]/30 transition-colors">
+                  <div class="flex-1 min-w-0 flex items-baseline gap-2">
+                    <span class="text-[13px] font-bold" x-text="term.name"></span>
+                    <span class="text-[11px] text-[#444444] truncate" x-text="term.en"></span>
+                  </div>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200 flex-shrink-0" :class="term._open ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="term._open" x-collapse class="px-5 pb-3">
+                  <p class="text-[13px] leading-relaxed text-[#444444] dark:text-[#cbd5e1]" x-text="term.definition"></p>
+                  <div class="flex flex-wrap gap-1.5 mt-2" x-show="term.related && term.related.length > 0">
+                    <template x-for="r in term.related" :key="r">
+                      <span @click="jumpToTerm(r)" class="pill bg-[#00AFF0]/10 text-[#00AFF0] dark:text-[#00E6FF] hover:bg-[#00AFF0]/20" x-text="r"></span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ CATEGORY 5: 營收確認流程 ══════ -->
+      <div x-show="activeCategory==='cat-process'" x-cloak>
+        <div class="mb-8">
+          <div class="flex items-center gap-2 text-[12px] text-[#444444] mb-2 section-label">
+            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+            <span>營收確認流程</span>
+          </div>
+          <h2 class="text-2xl font-extrabold tracking-tight text-[#000864] dark:text-white">營收確認流程 (Revenue Recognition)</h2>
+          <p class="text-[14px] text-[#444444] dark:text-[#cbd5e1] mt-2 leading-relaxed">鼎捷營收確認的三步驟流程：簽約 → 開票 → 收款，以及常見的付款時程。</p>
+        </div>
+
+        <!-- Visual Flow -->
+        <div class="mb-8" id="revenue-flow">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="arrow-right-circle" class="w-4 h-4 text-[#FF6E82]"></i> 營收確認三步驟</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-6 card-hover">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
+              <!-- Signing -->
+              <div class="text-center p-5 rounded-xl bg-[#00AFF0]/5 dark:bg-[#00AFF0]/10 border border-[#00AFF0]/15 dark:border-[#00AFF0]/30 w-full md:w-56">
+                <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#00AFF0]/15 flex items-center justify-center"><i data-lucide="pen-line" class="w-6 h-6 text-[#00AFF0]"></i></div>
+                <div class="text-[15px] font-bold">簽約</div>
+                <div class="text-[12px] text-[#444444] mb-2">Contract Signing</div>
+                <p class="text-[12px] text-[#444444] dark:text-[#cbd5e1]">客戶正式簽署合約。案件從 Pipeline 移出，進入交付。</p>
+              </div>
+              <!-- Arrow -->
+              <div class="hidden md:flex items-center px-3">
+                <div class="w-10 h-0.5 bg-[#E2E8F0] dark:bg-[#003CC8]"></div>
+                <div class="w-0 h-0 border-t-4 border-b-4 border-l-6 border-transparent border-l-[#E2E8F0] dark:border-l-[#003CC8]"></div>
+              </div>
+              <div class="md:hidden"><i data-lucide="arrow-down" class="w-5 h-5 text-[#E2E8F0]"></i></div>
+              <!-- Invoicing -->
+              <div class="text-center p-5 rounded-xl bg-[#FFD700]/5 dark:bg-[#FFD700]/10 border border-[#FFD700]/15 dark:border-[#FFD700]/30 w-full md:w-56">
+                <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#FFD700]/15 flex items-center justify-center"><i data-lucide="file-text" class="w-6 h-6 text-[#FFD700]"></i></div>
+                <div class="text-[15px] font-bold">開票</div>
+                <div class="text-[12px] text-[#444444] mb-2">Invoicing</div>
+                <p class="text-[12px] text-[#444444] dark:text-[#cbd5e1]">依合約條款開立發票。在簽約後或里程碑達成時觸發。</p>
+              </div>
+              <!-- Arrow -->
+              <div class="hidden md:flex items-center px-3">
+                <div class="w-10 h-0.5 bg-[#E2E8F0] dark:bg-[#003CC8]"></div>
+                <div class="w-0 h-0 border-t-4 border-b-4 border-l-6 border-transparent border-l-[#E2E8F0] dark:border-l-[#003CC8]"></div>
+              </div>
+              <div class="md:hidden"><i data-lucide="arrow-down" class="w-5 h-5 text-[#E2E8F0]"></i></div>
+              <!-- Collection -->
+              <div class="text-center p-5 rounded-xl bg-[#02D28C]/5 dark:bg-[#02D28C]/10 border border-[#02D28C]/15 dark:border-[#02D28C]/30 w-full md:w-56">
+                <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-[#02D28C]/15 flex items-center justify-center"><i data-lucide="banknote" class="w-6 h-6 text-[#02D28C]"></i></div>
+                <div class="text-[15px] font-bold">收款</div>
+                <div class="text-[12px] text-[#444444] mb-2">Collection</div>
+                <p class="text-[12px] text-[#444444] dark:text-[#cbd5e1]">客戶實際付款入帳。最終的業績確認指標。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Callout -->
+        <div class="callout callout-warning mb-8">
+          <div class="flex items-start gap-2">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-[#FF6E82] mt-0.5 flex-shrink-0"></i>
+            <div><strong>開票不等於收到錢。</strong>開票只代表發票已開立，實際款項入帳才是真正的營收確認。許多業務員混淆這兩個概念。</div>
+          </div>
+        </div>
+
+        <!-- Payment Schedule -->
+        <div class="mb-8" id="revenue-schedule">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-[#FF6E82]"></i> 典型付款時程</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-x-auto card-hover">
+            <table class="wiki-table">
+              <thead>
+                <tr class="bg-[#F5F7FA] dark:bg-[#000864]/40">
+                  <th>付款階段</th>
+                  <th>比例</th>
+                  <th>觸發條件</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="font-bold">簽約款</td><td class="kpi">20%</td><td class="text-[#444444] dark:text-[#cbd5e1]">合約簽署後</td></tr>
+                <tr><td class="font-bold">啟動款</td><td class="kpi">20%</td><td class="text-[#444444] dark:text-[#cbd5e1]">專案啟動、需求確認完成</td></tr>
+                <tr><td class="font-bold">中期款</td><td class="kpi">30%</td><td class="text-[#444444] dark:text-[#cbd5e1]">系統開發完成 / 上線測試</td></tr>
+                <tr><td class="font-bold">驗收款</td><td class="kpi">20%</td><td class="text-[#444444] dark:text-[#cbd5e1]">客戶驗收通過</td></tr>
+                <tr><td class="font-bold">保固款</td><td class="kpi">10%</td><td class="text-[#444444] dark:text-[#cbd5e1]">保固期結束</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Visual bar -->
+          <div class="mt-4 glass rounded-xl border border-[#E2E8F0] dark:border-[#003CC8] p-4 card-hover">
+            <div class="text-[12px] font-bold mb-2 text-[#444444] section-label">付款比例視覺化</div>
+            <div class="flex rounded-xl overflow-hidden h-8 text-[11px] font-bold text-white">
+              <div class="bg-[#00AFF0] flex items-center justify-center" style="width:20%">20%</div>
+              <div class="bg-[#644CE6] flex items-center justify-center" style="width:20%">20%</div>
+              <div class="bg-[#FFD700] flex items-center justify-center text-[#000864]" style="width:30%">30%</div>
+              <div class="bg-[#02D28C] flex items-center justify-center" style="width:20%">20%</div>
+              <div class="bg-[#FF6E82] flex items-center justify-center" style="width:10%">10%</div>
+            </div>
+            <div class="flex text-[10px] text-[#444444] mt-1">
+              <div style="width:20%" class="text-center">簽約</div>
+              <div style="width:20%" class="text-center">啟動</div>
+              <div style="width:30%" class="text-center">中期</div>
+              <div style="width:20%" class="text-center">驗收</div>
+              <div style="width:10%" class="text-center">保固</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compelling Event Cards -->
+        <div class="mb-8" id="revenue-compelling">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-[#FF6E82]"></i> 不得不做分析</h3>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-[#FF6E82]/15 flex items-center justify-center"><i data-lucide="alert-circle" class="w-4 h-4 text-[#FF6E82]"></i></div>
+                <h4 class="text-[14px] font-bold">不得不做 (Must Act)</h4>
+              </div>
+              <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] mb-2">客戶組織層面的急迫性：為什麼「現在」必須採取行動？</p>
+              <div class="space-y-1 text-[12px] text-[#444444] dark:text-[#cbd5e1]">
+                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#FF6E82] flex-shrink-0"></span> 新建工廠無系統</div>
+                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#FF6E82] flex-shrink-0"></span> 人力成本攀升</div>
+                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#FF6E82] flex-shrink-0"></span> 內控需求 / 接班</div>
+                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#FF6E82] flex-shrink-0"></span> 競爭壓力 / 法規 / 系統到期</div>
+              </div>
+            </div>
+            <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-[#644CE6]/15 flex items-center justify-center"><i data-lucide="target" class="w-4 h-4 text-[#644CE6]"></i></div>
+                <h4 class="text-[14px] font-bold">不得不跟鼎捷做 (Must Choose Digiwin)</h4>
+              </div>
+              <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] mb-2">為什麼不選其他供應商？鼎捷的差異化優勢：</p>
+              <div class="space-y-1 text-[12px] text-[#444444] dark:text-[#cbd5e1]">
+                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#644CE6] flex-shrink-0"></span> 44 年製造業專精</div>
+                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#644CE6] flex-shrink-0"></span> 一站式 (ERP+MES+WMS+APS+IoT)</div>
+                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#644CE6] flex-shrink-0"></span> BOI/保稅模組（競爭者宣稱但做不到）</div>
+                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#644CE6] flex-shrink-0"></span> 分階段實施 / 會計師合作策略</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Term Glossary -->
+        <div class="mt-8" id="revenue-glossary">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-[#FF6E82]"></i> 相關術語</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+            <template x-for="(term, i) in termsInCategory('cat-process')" :key="term.id">
+              <div :class="i > 0 ? 'border-t border-[#E2E8F0]/60 dark:border-[#003CC8]/60' : ''">
+                <button @click="term._open = !term._open" class="w-full flex items-center gap-3 px-5 py-3 min-h-[44px] text-left cursor-pointer hover:bg-[#F5F7FA] dark:hover:bg-[#001080]/30 transition-colors">
+                  <div class="flex-1 min-w-0 flex items-baseline gap-2">
+                    <span class="text-[13px] font-bold" x-text="term.name"></span>
+                    <span class="text-[11px] text-[#444444] truncate" x-text="term.en"></span>
+                  </div>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200 flex-shrink-0" :class="term._open ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="term._open" x-collapse class="px-5 pb-3">
+                  <p class="text-[13px] leading-relaxed text-[#444444] dark:text-[#cbd5e1]" x-text="term.definition"></p>
+                  <div class="flex flex-wrap gap-1.5 mt-2" x-show="term.related && term.related.length > 0">
+                    <template x-for="r in term.related" :key="r">
+                      <span @click="jumpToTerm(r)" class="pill bg-[#00AFF0]/10 text-[#00AFF0] dark:text-[#00E6FF] hover:bg-[#00AFF0]/20" x-text="r"></span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ CATEGORY 6: 儀表板功能 ══════ -->
+      <div x-show="activeCategory==='cat-dashboard'" x-cloak>
+        <div class="mb-8">
+          <div class="flex items-center gap-2 text-[12px] text-[#444444] mb-2 section-label">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+            <span>儀表板功能</span>
+          </div>
+          <h2 class="text-2xl font-extrabold tracking-tight text-[#000864] dark:text-white">儀表板功能 (Dashboard Features)</h2>
+          <p class="text-[14px] text-[#444444] dark:text-[#cbd5e1] mt-2 leading-relaxed">Dashboard 各功能區塊的使用說明與操作提示。</p>
+        </div>
+
+        <!-- Dashboard Sections -->
+        <div class="mb-8 space-y-4" id="dashboard-sections">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4 text-[#003CC8]"></i> 功能區塊</h3>
+
+          <!-- Next Actions -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#FF6E82]/15 flex items-center justify-center"><i data-lucide="target" class="w-4 h-4 text-[#FF6E82]"></i></div>
+              <div><h4 class="text-[14px] font-bold">Next Actions 待辦行動</h4><span class="text-[11px] text-[#444444] section-label">Hit List</span></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">依優先順序排列的下一步行動清單。每個行動附有「WHY」說明其重要性。</p>
+            <div class="flex flex-wrap gap-2 text-[12px]">
+              <span class="px-2.5 py-1 rounded-xl bg-[#FF6E82]/10 text-[#FF6E82] font-bold">排名 1-2：最緊急</span>
+              <span class="px-2.5 py-1 rounded-xl bg-[#FFD700]/10 text-[#B8960C] dark:text-[#FFD700] font-bold">排名 3-4：重要</span>
+              <span class="px-2.5 py-1 rounded-xl bg-[#F5F7FA] dark:bg-[#001080] text-[#444444] dark:text-[#cbd5e1] font-bold">其餘：一般</span>
+            </div>
+          </div>
+
+          <!-- I Owe / They Owe -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-[#00AFF0]/15 flex items-center justify-center"><i data-lucide="send" class="w-4 h-4 text-[#00AFF0]"></i></div>
+                <div><h4 class="text-[14px] font-bold">I Owe 我欠</h4></div>
+              </div>
+              <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed">我承諾要交付給客戶的事項。每項有到期日。</p>
+              <div class="flex gap-2 mt-2 text-[11px]">
+                <span class="px-2 py-0.5 rounded bg-[#FF6E82]/10 text-[#FF6E82] font-bold section-label">OVERDUE</span>
+                <span class="px-2 py-0.5 rounded bg-[#FFD700]/10 text-[#B8960C] dark:text-[#FFD700] font-bold section-label">TODAY</span>
+              </div>
+            </div>
+            <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-[#02D28C]/15 flex items-center justify-center"><i data-lucide="inbox" class="w-4 h-4 text-[#02D28C]"></i></div>
+                <div><h4 class="text-[14px] font-bold">They Owe 他們欠</h4></div>
+              </div>
+              <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed">客戶承諾要提供的資訊或文件。可作為自然的跟進理由。</p>
+            </div>
+          </div>
+
+          <!-- Deal Value -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#02D28C]/15 flex items-center justify-center"><i data-lucide="coins" class="w-4 h-4 text-[#02D28C]"></i></div>
+              <div><h4 class="text-[14px] font-bold">Deal Value 案件金額</h4><span class="text-[11px] text-[#444444]">以百萬泰銖為單位</span></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed">預估合約金額（泰銖）。以百萬為單位輸入（例如 2.5 = &#3647;2,500,000）。未填寫會以琥珀色「Enter &#3647;」提示。</p>
+            <div class="callout callout-tip mt-3">
+              <div class="flex items-start gap-2">
+                <i data-lucide="lightbulb" class="w-4 h-4 text-[#FFD700] mt-0.5 flex-shrink-0"></i>
+                <div>金額儲存在瀏覽器 localStorage 中，清除瀏覽器資料會遺失。</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pipeline View -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#644CE6]/15 flex items-center justify-center"><i data-lucide="kanban" class="w-4 h-4 text-[#644CE6]"></i></div>
+              <div><h4 class="text-[14px] font-bold">Pipeline 管線視圖</h4></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">以看板形式顯示所有案件，按 E/D/C2/C1/B/A 階段分組。每張卡片顯示六要素狀態、角色辨識進度、SLA 警示。</p>
+          </div>
+
+          <!-- Deal Modal -->
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] p-5 card-hover">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#00AFF0]/15 flex items-center justify-center"><i data-lucide="square-pen" class="w-4 h-4 text-[#00AFF0]"></i></div>
+              <div><h4 class="text-[14px] font-bold">Deal Modal 案件詳情</h4></div>
+            </div>
+            <p class="text-[13px] text-[#444444] dark:text-[#cbd5e1] leading-relaxed mb-3">點擊任一案件卡片開啟詳情視窗，包含：</p>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-[12px]">
+              <div class="flex items-center gap-1.5 text-[#444444] dark:text-[#cbd5e1]"><span class="w-1.5 h-1.5 rounded-full bg-[#00AFF0]"></span> 六要素狀態</div>
+              <div class="flex items-center gap-1.5 text-[#444444] dark:text-[#cbd5e1]"><span class="w-1.5 h-1.5 rounded-full bg-[#00AFF0]"></span> 推進計畫</div>
+              <div class="flex items-center gap-1.5 text-[#444444] dark:text-[#cbd5e1]"><span class="w-1.5 h-1.5 rounded-full bg-[#00AFF0]"></span> 六要素補齊計畫</div>
+              <div class="flex items-center gap-1.5 text-[#444444] dark:text-[#cbd5e1]"><span class="w-1.5 h-1.5 rounded-full bg-[#00AFF0]"></span> 活動記錄</div>
+              <div class="flex items-center gap-1.5 text-[#444444] dark:text-[#cbd5e1]"><span class="w-1.5 h-1.5 rounded-full bg-[#00AFF0]"></span> 角色辨識</div>
+              <div class="flex items-center gap-1.5 text-[#444444] dark:text-[#cbd5e1]"><span class="w-1.5 h-1.5 rounded-full bg-[#00AFF0]"></span> 不得不做分析</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Tips -->
+        <div class="callout callout-tip mb-8" id="dashboard-mobile">
+          <div class="flex items-start gap-2">
+            <i data-lucide="smartphone" class="w-4 h-4 text-[#FFD700] mt-0.5 flex-shrink-0"></i>
+            <div>
+              <strong>行動裝置使用提示：</strong>Pipeline 在手機上會變為垂直捲動模式。建議使用左右滑動切換階段，或使用頂部的階段標籤快速跳轉。
+            </div>
+          </div>
+        </div>
+
+        <!-- Term Glossary -->
+        <div class="mt-8" id="dashboard-glossary">
+          <h3 class="text-[15px] font-bold mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-[#003CC8]"></i> 相關術語</h3>
+          <div class="glass rounded-2xl border border-[#E2E8F0] dark:border-[#003CC8] overflow-hidden card-hover">
+            <template x-for="(term, i) in termsInCategory('cat-dashboard')" :key="term.id">
+              <div :class="i > 0 ? 'border-t border-[#E2E8F0]/60 dark:border-[#003CC8]/60' : ''">
+                <button @click="term._open = !term._open" class="w-full flex items-center gap-3 px-5 py-3 min-h-[44px] text-left cursor-pointer hover:bg-[#F5F7FA] dark:hover:bg-[#001080]/30 transition-colors">
+                  <div class="flex-1 min-w-0 flex items-baseline gap-2">
+                    <span class="text-[13px] font-bold" x-text="term.name"></span>
+                    <span class="text-[11px] text-[#444444] truncate" x-text="term.en"></span>
+                  </div>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200 flex-shrink-0" :class="term._open ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="term._open" x-collapse class="px-5 pb-3">
+                  <p class="text-[13px] leading-relaxed text-[#444444] dark:text-[#cbd5e1]" x-text="term.definition"></p>
+                  <div class="flex flex-wrap gap-1.5 mt-2" x-show="term.related && term.related.length > 0">
+                    <template x-for="r in term.related" :key="r">
+                      <span @click="jumpToTerm(r)" class="pill bg-[#00AFF0]/10 text-[#00AFF0] dark:text-[#00E6FF] hover:bg-[#00AFF0]/20" x-text="r"></span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ═══════════ RIGHT TOC (Desktop only) ═══════════ -->
+    <aside class="hidden xl:block w-48 flex-shrink-0 sticky top-[53px] h-[calc(100vh-53px)] overflow-y-auto p-5 pt-6">
+      <div class="text-[11px] font-bold text-[#444444] uppercase tracking-wider mb-3 section-label">On This Page</div>
+      <nav class="space-y-0.5">
+        <!-- Funnel TOC -->
+        <template x-if="activeCategory==='cat-funnel'">
+          <div class="space-y-0.5">
+            <a href="#funnel-visual" class="toc-link block">漏斗總覽</a>
+            <a href="#funnel-table" class="toc-link block">階段摘要表</a>
+            <a href="#funnel-details" class="toc-link block">各階段詳細說明</a>
+            <a href="#funnel-callout" class="toc-link block">Eddie 訓練語錄</a>
+            <a href="#funnel-glossary" class="toc-link block">相關術語</a>
+          </div>
+        </template>
+        <!-- Six Elements TOC -->
+        <template x-if="activeCategory==='cat-six'">
+          <div class="space-y-0.5">
+            <a href="#six-visual" class="toc-link block">六要素總覽</a>
+            <a href="#six-details" class="toc-link block">各要素詳細說明</a>
+            <a href="#six-gate" class="toc-link block">階段對照表</a>
+            <a href="#six-glossary" class="toc-link block">相關術語</a>
+          </div>
+        </template>
+        <!-- Roles TOC -->
+        <template x-if="activeCategory==='cat-roles'">
+          <div class="space-y-0.5">
+            <a href="#roles-chain" class="toc-link block">決策鏈</a>
+            <a href="#roles-explanation" class="toc-link block">3/3 計算規則</a>
+            <a href="#roles-table" class="toc-link block">角色對照表</a>
+            <a href="#roles-glossary" class="toc-link block">相關術語</a>
+          </div>
+        </template>
+        <!-- Metrics TOC -->
+        <template x-if="activeCategory==='cat-metrics'">
+          <div class="space-y-0.5">
+            <a href="#metrics-pipeline" class="toc-link block">管線指標</a>
+            <a href="#metrics-activity" class="toc-link block">活動指標</a>
+            <a href="#metrics-callout" class="toc-link block">計算範例</a>
+            <a href="#metrics-glossary" class="toc-link block">相關術語</a>
+          </div>
+        </template>
+        <!-- Process TOC -->
+        <template x-if="activeCategory==='cat-process'">
+          <div class="space-y-0.5">
+            <a href="#revenue-flow" class="toc-link block">三步驟流程</a>
+            <a href="#revenue-schedule" class="toc-link block">付款時程</a>
+            <a href="#revenue-compelling" class="toc-link block">不得不做分析</a>
+            <a href="#revenue-glossary" class="toc-link block">相關術語</a>
+          </div>
+        </template>
+        <!-- Dashboard TOC -->
+        <template x-if="activeCategory==='cat-dashboard'">
+          <div class="space-y-0.5">
+            <a href="#dashboard-sections" class="toc-link block">功能區塊</a>
+            <a href="#dashboard-mobile" class="toc-link block">行動裝置提示</a>
+            <a href="#dashboard-glossary" class="toc-link block">相關術語</a>
+          </div>
+        </template>
+      </nav>
+    </aside>
+
+  </div>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="text-center text-[11px] text-[#444444] py-8 mt-4 border-t border-[#E2E8F0] dark:border-[#003CC8]">
+    <a href="index.html" class="text-[#00AFF0] hover:text-[#003CC8] dark:text-[#00E6FF] dark:hover:text-[#00AFF0] font-semibold">&larr; 返回 Dashboard</a>
+    <span class="mx-2">&middot;</span>
+    <span class="font-bold">Digiwin Thailand</span> &middot; 術語百科
+  </footer>
+
+  <!-- ═══════════ APP LOGIC ═══════════ -->
+  <script>
+  function wikiApp() {
+    return {
+      darkMode: localStorage.getItem('dw_dark') === 'true',
+      search: '',
+      activeCategory: 'cat-funnel',
+      lastCategory: 'cat-funnel',
+      sidebarOpen: false,
+
+      categories: [
+        { id: 'cat-funnel',     name: '銷售漏斗階段',       icon: 'funnel',           color: '#00AFF0' },
+        { id: 'cat-six',        name: '項目六要素',         icon: 'hexagon',          color: '#644CE6' },
+        { id: 'cat-roles',      name: '角色與關係人',       icon: 'users',            color: '#FFD700' },
+        { id: 'cat-metrics',    name: '指標與數字',         icon: 'bar-chart-3',      color: '#02D28C' },
+        { id: 'cat-process',    name: '營收確認流程',       icon: 'receipt',          color: '#FF6E82' },
+        { id: 'cat-dashboard',  name: '儀表板功能',         icon: 'layout-dashboard', color: '#003CC8' },
+      ],
+
+      terms: [
+        // ── 銷售漏斗階段 ──
+        {
+          id: 'stage-e', category: 'cat-funnel', name: 'E 階段', en: 'Engagement Stage',
+          definition: '初步接觸階段。已與潛在客戶建立聯繫，但尚未深入了解需求。加權機率 5%。SLA：14 天內需推進至 D 階段。',
+          section: 'Pipeline 管線', related: ['D 階段', '加權管線值', 'SLA']
+        },
+        {
+          id: 'stage-d', category: 'cat-funnel', name: 'D 階段', en: 'Discovery Stage',
+          definition: '需求確認階段。已進行深度探詢，了解客戶痛點與需求，但尚未提出正式方案。加權機率 10%。SLA：30 天。',
+          section: 'Pipeline 管線', related: ['E 階段', 'C2 階段', '痛點']
+        },
+        {
+          id: 'stage-c2', category: 'cat-funnel', name: 'C2 階段', en: 'Latent Need Identified',
+          definition: '隱性需求確認。客戶有ERP需求但自己還不知道——鼎捷從外部觀察已辨識出需求。這是隱性需求發展階段的最後一關，下一步是幫助客戶將隱性需求轉為顯性需求（C1）。加權機率 25%。SLA：30 天。',
+          section: 'Pipeline 管線', related: ['D 階段', 'C1 階段', '項目六要素']
+        },
+        {
+          id: 'stage-c1', category: 'cat-funnel', name: 'C1 階段', en: 'Evaluation Stage',
+          definition: '評估中。客戶正在積極評估方案，可能涉及技術 POC 或高層簡報。加權機率 50%。SLA：45 天。',
+          section: 'Pipeline 管線', related: ['C2 階段', 'B 階段', '決策流程']
+        },
+        {
+          id: 'stage-b', category: 'cat-funnel', name: 'B 階段', en: 'Negotiation Stage',
+          definition: '議價中。客戶已決定選擇鼎捷，正在進行合約條款與價格談判。加權機率 75%。SLA：30 天。',
+          section: 'Pipeline 管線', related: ['C1 階段', 'A 階段', '簽約']
+        },
+        {
+          id: 'stage-a', category: 'cat-funnel', name: 'A 階段', en: 'Closing Stage',
+          definition: '即將簽約。所有條件已談妥，等待最終簽核或蓋章。加權機率 90%。SLA：14 天。',
+          section: 'Pipeline 管線', related: ['B 階段', '簽約', '核決者']
+        },
+
+        // ── 指標與數字 ──
+        {
+          id: 'weighted-pipeline', category: 'cat-metrics', name: '加權管線值', en: 'Weighted Pipeline',
+          definition: '將每筆案件金額乘以其所在階段的成交機率後加總。例如一筆 ฿10M 的案件在 C1 階段，加權值為 ฿5M (10M x 50%)。這是預測營收的核心指標。',
+          section: 'Header 頂部列', related: ['管線總值', 'E 階段', 'A 階段']
+        },
+        {
+          id: 'total-pipeline', category: 'cat-metrics', name: '管線總值', en: 'Total Pipeline',
+          definition: '所有案件的金額加總，不考慮階段權重。代表「如果所有案件都成交」的理論最大營收。',
+          section: 'Header 頂部列', related: ['加權管線值']
+        },
+        {
+          id: 'sla', category: 'cat-metrics', name: 'SLA', en: 'Service Level Agreement (Stage Timer)',
+          definition: '各階段允許停留的最大天數。超過 SLA 的案件會以紅色邊框警示，表示案件可能停滯需要介入。E=14天, D=30天, C2=30天, C1=45天, B=30天, A=14天。',
+          section: 'Pipeline 管線 / Deal Modal', related: ['Days at Stage']
+        },
+        {
+          id: 'days-at-stage', category: 'cat-metrics', name: 'Days at Stage', en: '階段停留天數',
+          definition: '案件在當前階段已停留的天數。超過 SLA 70% 會變為琥珀色警告，超過 100% 會變為紅色警示。是辨識停滯案件的關鍵指標。',
+          section: 'Pipeline 管線 / Deal Modal', related: ['SLA']
+        },
+        {
+          id: 'coverage-ratio', category: 'cat-metrics', name: '覆蓋率', en: 'Coverage Ratio',
+          definition: '加權管線值 / 年度目標缺口。一般而言，3x 覆蓋率代表管線健康。例如年度目標 ฿150M，加權管線需要 ฿450M。',
+          section: 'Pipeline 管線', related: ['加權管線值', '管線總值']
+        },
+
+        // ── 項目六要素 ──
+        {
+          id: 'six-elements', category: 'cat-six', name: '項目六要素', en: 'Six Elements of a Deal',
+          definition: '鼎捷評估案件成熟度的六個維度。全部確認（6/6 綠燈）才算案件完全成熟，可以進入簽約。在 Dashboard 上以六個小圓點顯示（綠色=確認，琥珀=部分，灰色=未確認）。',
+          section: 'Pipeline Cards / Deal Modal', related: ['時程', '預算', '需求', '決策流程', '競爭對手', '動機']
+        },
+        {
+          id: 'elem-timeline', category: 'cat-six', name: '時程 Timeline', en: 'Go-Live Timeline',
+          definition: '客戶預期的系統上線時間。需確認具體的 Go-Live 日期或至少季度範圍。沒有時程的案件容易無限拖延。',
+          section: 'Deal Modal 六要素', related: ['項目六要素', '預算']
+        },
+        {
+          id: 'elem-budget', category: 'cat-six', name: '預算 Budget', en: 'Phased Budget',
+          definition: '客戶的預算範圍與分階段投入計畫。需了解是否有正式的 IT 預算編列，以及預算的審批流程。分階段報價是常見的策略。',
+          section: 'Deal Modal 六要素', related: ['項目六要素', '時程']
+        },
+        {
+          id: 'elem-requirements', category: 'cat-six', name: '需求 Requirements', en: 'Pain-Tied Requirements',
+          definition: '客戶的具體需求，必須與痛點直接連結。不是功能清單，而是「因為什麼痛苦，所以需要什麼能力」。例如：因為庫存盲區（痛點），所以需要 WMS（需求）。',
+          section: 'Deal Modal 六要素', related: ['項目六要素', '痛點']
+        },
+        {
+          id: 'elem-decision', category: 'cat-six', name: '決策流程 Decision Process', en: '3-Role Decision Chain',
+          definition: '客戶內部的決策鏈：守門員 → 決策者 → 核決者。需確認每個角色是誰、其影響力，以及最終簽核流程。',
+          section: 'Deal Modal 六要素', related: ['項目六要素', '守門員', '決策者', '核決者']
+        },
+        {
+          id: 'elem-competitors', category: 'cat-six', name: '競爭對手 Competitors', en: 'Competitive Landscape',
+          definition: '客戶目前正在評估的其他供應商（包括維持現狀的選項）。需了解競爭對手的定位、價格，以及客戶對其的評價。',
+          section: 'Deal Modal 六要素', related: ['項目六要素', '不得不跟鼎捷做']
+        },
+        {
+          id: 'elem-motivation', category: 'cat-six', name: '動機 Motivation', en: 'Two-Level Motivation',
+          definition: '兩層動機：(1) 組織層面為什麼必須行動 (2) 關鍵決策者個人為什麼在乎這件事。兩層都要確認才算完整。',
+          section: 'Deal Modal 六要素', related: ['項目六要素', '不得不做', '不得不跟鼎捷做']
+        },
+
+        // ── 角色與關係人 ──
+        {
+          id: 'role-gatekeeper', category: 'cat-roles', name: '守門員', en: 'Gatekeeper',
+          definition: '我方在客戶端的主要聯繫窗口或內部 Champion。負責安排會議、傳遞資訊，是進入客戶組織的入口。在 Dashboard 上為「3/3 roles」的第一個角色。',
+          section: 'Deal Modal 角色', related: ['決策者', '核決者', '決策流程']
+        },
+        {
+          id: 'role-decider', category: 'cat-roles', name: '決策者', en: 'Decision Maker / Evaluator',
+          definition: '負責技術評估或業務評估的人。通常是部門主管或專案負責人，能影響但無法單獨拍板。在 Dashboard 上為「3/3 roles」的第二個角色。',
+          section: 'Deal Modal 角色', related: ['守門員', '核決者', '決策流程']
+        },
+        {
+          id: 'role-approver', category: 'cat-roles', name: '核決者', en: 'Economic Buyer / Final Approver',
+          definition: '最終決定購買的人，通常是老闆或財務最高主管。此人可能不出席供應商會議，但一切提案最終需要其簽核。在 Dashboard 上為「3/3 roles」的第三個角色。',
+          section: 'Deal Modal 角色', related: ['守門員', '決策者', '決策流程']
+        },
+        {
+          id: 'three-roles', category: 'cat-roles', name: '3/3 Roles', en: 'Three-Role Identification',
+          definition: '三角色辨識指標。Dashboard 上顯示「X/3 roles」代表已辨識且可聯繫的角色數。只計入有名有姓且有聯繫方式（電話/Email/LINE）的真實人物，不計入模糊的「老闆」或「管理層」。',
+          section: 'Pipeline Cards / Deal Modal', related: ['守門員', '決策者', '核決者']
+        },
+
+        // ── 營收確認流程 ──
+        {
+          id: 'signing', category: 'cat-process', name: '簽約', en: 'Contract Signing',
+          definition: '客戶正式簽署合約。是鼎捷營收確認三步驟的第一步。簽約後案件從 Pipeline 移出，進入交付階段。',
+          section: 'KPI 方塊', related: ['開票', '收款']
+        },
+        {
+          id: 'invoicing', category: 'cat-process', name: '開票', en: 'Invoicing',
+          definition: '依合約條款開立發票。通常在簽約後或特定里程碑達成時開票。是營收確認三步驟的第二步。',
+          section: 'KPI 方塊', related: ['簽約', '收款']
+        },
+        {
+          id: 'collection', category: 'cat-process', name: '收款', en: 'Collection / Cash-In',
+          definition: '客戶實際付款入帳。是營收確認三步驟的最後一步，也是最終的業績確認指標。',
+          section: 'KPI 方塊 / 收款行', related: ['簽約', '開票']
+        },
+        {
+          id: 'must-act', category: 'cat-process', name: '不得不做', en: 'Must Act (Compelling Event)',
+          definition: '客戶組織層面的急迫性：為什麼「現在」必須採取行動？常見理由包括：新建工廠無系統、現有系統僅一人維護、競爭壓力、法規要求等。',
+          section: 'Deal Modal 不得不做分析', related: ['不得不跟鼎捷做', '動機']
+        },
+        {
+          id: 'must-choose-dw', category: 'cat-process', name: '不得不跟鼎捷做', en: 'Must Choose Digiwin',
+          definition: '客戶為什麼不選其他供應商，而選擇鼎捷？這是比「不得不做」更深層的問題。如果這一項是弱的，即使案件推進也可能被競爭對手截走。',
+          section: 'Deal Modal 不得不做分析', related: ['不得不做', '競爭對手']
+        },
+        {
+          id: 'pain-points', category: 'cat-process', name: '痛點', en: 'Pain Points',
+          definition: '客戶目前面臨的具體業務問題。好的痛點描述包含：現象（什麼在痛）、影響（造成什麼損失）、頻率（多常發生）。痛點是所有銷售論述的起點。',
+          section: 'Deal Modal 痛點', related: ['需求', '不得不做']
+        },
+
+        // ── 儀表板功能 ──
+        {
+          id: 'hit-list', category: 'cat-dashboard', name: 'Next Actions 待辦行動', en: 'Hit List / Next Actions',
+          definition: '依優先順序排列的下一步行動清單。排名 1-2（紅色）為最緊急，3-4（琥珀色）為重要，其餘為一般。每個行動都附有「WHY」說明其重要性。',
+          section: '左側欄', related: ['I Owe', 'They Owe']
+        },
+        {
+          id: 'i-owe', category: 'cat-dashboard', name: 'I Owe 我欠', en: 'Deliverables I Owe',
+          definition: '我承諾要交付給客戶的事項。每一項都有到期日，逾期會標示 OVERDUE（紅色），當日到期標示 TODAY（琥珀色）。這是建立客戶信任的關鍵追蹤。',
+          section: 'Tabs / 底部區塊', related: ['They Owe', 'Next Actions']
+        },
+        {
+          id: 'they-owe', category: 'cat-dashboard', name: 'They Owe 他們欠', en: 'Items They Owe Me',
+          definition: '客戶承諾要提供給我的資訊或文件。追蹤這些承諾可以作為自然的跟進理由，而非單純「打擾」客戶。',
+          section: 'Tabs / 底部區塊', related: ['I Owe', 'Next Actions']
+        },
+        {
+          id: 'deal-value', category: 'cat-dashboard', name: 'Deal Value 案件金額', en: 'Deal Value (฿)',
+          definition: '案件的預估合約金額（泰銖）。以百萬為單位輸入（例如 2.5 = ฿2,500,000）。未填寫的案件會以琥珀色「Enter ฿」提示。金額儲存在瀏覽器 localStorage 中。',
+          section: 'Pipeline Cards / Deal Modal / Header', related: ['加權管線值', '管線總值']
+        },
+        {
+          id: 'advancement', category: 'cat-dashboard', name: '推進計畫', en: 'Advancement Checklist',
+          definition: '將案件從當前階段推進到下一階段所需完成的具體任務清單。例如 D→C2 需要：與決策者確認痛點、開始預算討論、確認競爭對手、提交初步提案。',
+          section: 'Deal Modal 推進計畫', related: ['項目六要素', 'SLA']
+        },
+        {
+          id: 'six-element-actions', category: 'cat-dashboard', name: '六要素補齊計畫', en: 'Six Element Gap Actions',
+          definition: '針對尚未確認的六要素項目，列出具體的補齊行動與到期日。例如時程未確認 → 在提案中提出分階段上線建議。',
+          section: 'Deal Modal 六要素補齊', related: ['項目六要素', '推進計畫']
+        },
+        {
+          id: 'activity-log', category: 'cat-dashboard', name: '活動記錄', en: 'Activity Log',
+          definition: '案件的互動歷史時間線。記錄每次接觸的日期、行動、結果，以及是否有階段變更。用於追蹤案件推進的節奏。',
+          section: 'Deal Modal 活動記錄', related: ['Days at Stage']
+        },
+      ],
+
+      slugify(name) {
+        const map = {
+          'E 階段': 'stage-e', 'D 階段': 'stage-d', 'C2 階段': 'stage-c2', 'C1 階段': 'stage-c1',
+          'B 階段': 'stage-b', 'A 階段': 'stage-a', '加權管線值': 'weighted-pipeline',
+          '管線總值': 'total-pipeline', 'SLA': 'sla', 'Days at Stage': 'days-at-stage',
+          '覆蓋率': 'coverage-ratio', '項目六要素': 'six-elements', '時程': 'elem-timeline',
+          '預算': 'elem-budget', '需求': 'elem-requirements', '決策流程': 'elem-decision',
+          '競爭對手': 'elem-competitors', '動機': 'elem-motivation', '守門員': 'role-gatekeeper',
+          '決策者': 'role-decider', '核決者': 'role-approver', '3/3 Roles': 'three-roles',
+          '簽約': 'signing', '開票': 'invoicing', '收款': 'collection', '不得不做': 'must-act',
+          '不得不跟鼎捷做': 'must-choose-dw', '痛點': 'pain-points', 'Next Actions': 'hit-list',
+          'I Owe': 'i-owe', 'They Owe': 'they-owe', 'Deal Value': 'deal-value',
+          '推進計畫': 'advancement', '六要素補齊計畫': 'six-element-actions', '活動記錄': 'activity-log',
+        };
+        return map[name] || name.toLowerCase().replace(/\s+/g, '-');
+      },
+
+      getCategoryName(catId) {
+        const cat = this.categories.find(c => c.id === catId);
+        return cat ? cat.name : '';
+      },
+
+      jumpToTerm(name) {
+        // Find the term's category and switch to it
+        const termId = this.slugify(name);
+        const term = this.terms.find(t => t.id === termId);
+        if (term) {
+          this.search = '';
+          this.activeCategory = term.category;
+          this.lastCategory = term.category;
+          // Open the term and scroll to glossary
+          this.$nextTick(() => {
+            lucide.createIcons();
+            term._open = true;
+            this.$nextTick(() => {
+              const el = document.getElementById(term.id);
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+          });
+        }
+      },
+
+      termsInCategory(catId) {
+        return this.terms.filter(t => t.category === catId);
+      },
+
+      get filteredTerms() {
+        if (!this.search) return this.terms;
+        const q = this.search.toLowerCase();
+        return this.terms.filter(t =>
+          t.name.toLowerCase().includes(q) ||
+          (t.en && t.en.toLowerCase().includes(q)) ||
+          t.definition.toLowerCase().includes(q) ||
+          t.section.toLowerCase().includes(q)
+        );
+      },
+
+      init() {
+        lucide.createIcons();
+        this.$nextTick(() => lucide.createIcons());
+        // Re-init icons when category changes
+        this.$watch('activeCategory', () => {
+          this.$nextTick(() => lucide.createIcons());
+        });
+      }
+    };
+  }
+  </script>
+</body>
+</html>
