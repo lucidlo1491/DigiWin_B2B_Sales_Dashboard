@@ -33,7 +33,7 @@ const DASHBOARD_DATA = {
       ],
       stakeholders: [
         { name: "K. Lek", role: "採購經理", type: "聯絡窗口", notes: "住在Lasalle/Srinakarin，跟Peter是鄰居" },
-        { name: "坤Nueng", role: "內部推動者", type: "Champion", notes: "推動MES取代人工，將提案給老闆" },
+        { name: "Dr. Treerapot (坤Nueng/蔡漢霖)", role: "CFO 財務長", type: "決策者/Champion", notes: "Ph.D. 推動MES取代人工，將提案給老闆。有預算權。Email: treerapot@bfcthai.com" },
         { name: "Dr. Chok", role: "副總經理", type: "技術決策者", notes: "工程背景，看大局不深入細節" },
         { name: "MD (老闆)", role: "最終決策者", type: "Economic Buyer", notes: "不參加供應商會議，所有提案經坤Nueng" },
         { name: "Boonchai", role: "IT經理", type: "系統管理者", notes: "10-20年資深，獨自維護Oracle" }
@@ -45,7 +45,7 @@ const DASHBOARD_DATA = {
       stage_entry_date: "2026-03-23",
       contacts: [
         { name: "K. Lek", phone: "+66898124076", email: null, line: null, role: "採購經理" },
-        { name: "坤Nueng", phone: null, email: null, line: null, role: "內部推動者 Champion" }
+        { name: "Dr. Treerapot", phone: "+6623126159", email: "treerapot@bfcthai.com", line: null, role: "CFO / Champion" }
       ],
       advancement: {
         current: "D", target: "C2",
