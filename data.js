@@ -291,7 +291,7 @@ const DASHBOARD_DATA = {
   ],
 
   i_owe: [
-    { what: "Confirm Wed 3pm with consultant", to: "Khun Tan", company: "Chia Tai", due: "2026-03-23", status: "overdue", why: "會議2天後，顧問即將離開泰國" },
+    { what: "Confirm Wed 3pm with consultant", to: "Khun Tan", company: "Chia Tai", due: "2026-03-23", status: "done", why: "✅ 已確認 — 3/25 14:00 工廠簡報，用車已安排" },
     { what: "Send profile + brochures + video", to: "Chayut", company: "Toyota Tsusho", due: "2026-03-24", status: "done", why: "✅ 已寄出 2026-03-24 — PDF+抖音+About頁面" },
     { what: "Send follow-up email", to: "Yanisa", company: "Mitsuya Limited", due: "2026-03-24", status: "due_today", why: "70分鐘會議中承諾的跟進" },
     { what: "Send intro email", to: "Sirimon", company: "Daisae Metrology", due: "2026-03-25", status: "upcoming", why: "名片手寫：สนใจ ส่งเมล์" },
