@@ -952,6 +952,32 @@
                       <div class="font-bold" x-text="sh.name"></div>
                       <div class="text-[#444444] dark:text-[#cbd5e1] flex items-center gap-2"><span x-text="sh.role"></span><span class="tag-label px-1.5 py-0.5 rounded-md bg-[#F5F7FA] dark:bg-[#001080]" x-text="sh.type"></span></div>
                       <div x-show="sh.notes" class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5" x-text="sh.notes"></div>
+                      <!-- Contact actions: phone, LINE, email -->
+                      <div class="flex flex-wrap gap-1.5 mt-2" x-show="getContact(selectedDeal, sh.name)">
+                        <template x-if="getContact(selectedDeal, sh.name)?.phone">
+                          <a :href="'tel:' + getContact(selectedDeal, sh.name).phone" class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-[#02D28C]/10 text-[#02D28C] hover:bg-[#02D28C]/20 transition-colors cursor-pointer min-h-[36px]" @click.stop>
+                            <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                            <span x-text="getContact(selectedDeal, sh.name).phone"></span>
+                          </a>
+                        </template>
+                        <template x-if="getContact(selectedDeal, sh.name)?.line">
+                          <a :href="'https://line.me/R/ti/p/' + getContact(selectedDeal, sh.name).line" class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-[#06C755]/10 text-[#06C755] hover:bg-[#06C755]/20 transition-colors cursor-pointer min-h-[36px]" @click.stop target="_blank">
+                            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                            <span>LINE</span>
+                          </a>
+                        </template>
+                        <template x-if="getContact(selectedDeal, sh.name)?.email">
+                          <a :href="'mailto:' + getContact(selectedDeal, sh.name).email" class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-[#00AFF0]/10 text-[#00AFF0] hover:bg-[#00AFF0]/20 transition-colors cursor-pointer min-h-[36px]" @click.stop>
+                            <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+                            <span x-text="getContact(selectedDeal, sh.name).email"></span>
+                          </a>
+                        </template>
+                      </div>
+                      <!-- No contact info prompt -->
+                      <div x-show="!getContact(selectedDeal, sh.name)" class="text-[11px] text-[#FFD700] mt-1.5 flex items-center gap-1">
+                        <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                        <span>No contact info — get phone/LINE/email</span>
+                      </div>
                     </div>
                   </div>
                 </template>
@@ -1077,6 +1103,18 @@
       getDealValue(company){
         const deal = this.data.deals.find(d => d.company === company || company.includes(d.company.split(' ')[0]));
         return deal ? deal.value : null;
+      },
+
+      // Get contact info for a stakeholder by matching name against deal.contacts array
+      getContact(deal, name){
+        if(!deal.contacts || !name) return null;
+        const n = name.toLowerCase();
+        const c = deal.contacts.find(x => x.name && (
+          x.name.toLowerCase().includes(n.split(' ')[0].toLowerCase()) ||
+          n.includes(x.name.toLowerCase().split(' ')[0])
+        ));
+        if(c && (c.phone || c.email || c.line)) return c;
+        return null;
       },
 
       // #12 — Stakeholder role completeness (守門員/決策者/核決者)
