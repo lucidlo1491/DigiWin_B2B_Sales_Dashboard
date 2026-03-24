@@ -131,15 +131,22 @@ const DASHBOARD_DATA = {
       },
       must_act: "partial", must_act_detail: "客戶需求存在但動機強度未確認",
       must_choose_digiwin: "weak", must_choose_detail: "需展示象田品牌AGV優於現有Toyota方案",
-      next_action: "Send profile + Xiangtian brochures + video to armstrong.wuu@gmail.com",
+      next_action: "Follow up with Chayut — has he reviewed the materials? Schedule online meeting.",
       pain_points: ["終端客戶限制外部進入", "Chayut工作電腦壞了用個人Gmail", "現有AGV僅基礎追蹤無智能化"],
       stakeholders: [
-        { name: "Chayut", role: "物流方案經理", type: "技術評估者/中間人", notes: "辦公室在MD Tower附近Big C Bangna" },
+        { name: "Chayut", role: "物流方案經理", type: "技術評估者/中間人", notes: "辦公室在MD Tower附近Big C Bangna。Toyota email: chayut@ttfl.co.th" },
         { name: "終端客戶", role: "最終決策者", type: "Economic Buyer", notes: "不讓外部進場，完全依賴Chayut" }
       ],
+      contacts: [
+        { name: "Chayut", phone: "+66625561252", email: "chayut@ttfl.co.th", line: null, role: "物流方案經理" }
+      ],
       industry: "物料搬運/物流", fit: "HIGH",
-      transcript_date: "2026-03-23",
-      call_summary: "詳細技術討論。7.7米貨架、環氧地坪容差、3度斜坡。Chayut要求英文資料和演示影片。個人Gmail因工作電腦故障。"
+      transcript_date: "2026-03-24",
+      call_summary: "2026-03-24: 已寄出Xiangtian Introduction PDF + 抖音影片連結 + Digiwin Thailand About頁面。Email寄至armstrong.wuu@gmail.com，CC chayut@ttfl.co.th + eddiesheu@digiwin.com。等待Chayut審閱後安排線上會議。",
+      activity_log: [
+        { date: "2026-03-24", action: "寄出Xiangtian資料包(PDF+抖音+About頁面)", outcome: "Email已送達，CC Toyota官方信箱+Eddie", stage_change: null },
+        { date: "2026-03-23", action: "詳細技術討論電話", outcome: "確認7.7米貨架、環氧地坪、3度斜坡需求", stage_change: null }
+      ]
     },
     {
       id: 5, company: "Chia Tai (เจียไต๋)", person: "Khun Tan", title: "Project Manager",
@@ -285,7 +292,7 @@ const DASHBOARD_DATA = {
 
   i_owe: [
     { what: "Confirm Wed 3pm with consultant", to: "Khun Tan", company: "Chia Tai", due: "2026-03-23", status: "overdue", why: "會議2天後，顧問即將離開泰國" },
-    { what: "Send profile + brochures + video", to: "Chayut", company: "Toyota Tsusho", due: "2026-03-24", status: "due_today", why: "Chayut明確要求英文資料" },
+    { what: "Send profile + brochures + video", to: "Chayut", company: "Toyota Tsusho", due: "2026-03-24", status: "done", why: "✅ 已寄出 2026-03-24 — PDF+抖音+About頁面" },
     { what: "Send follow-up email", to: "Yanisa", company: "Mitsuya Limited", due: "2026-03-24", status: "due_today", why: "70分鐘會議中承諾的跟進" },
     { what: "Send intro email", to: "Sirimon", company: "Daisae Metrology", due: "2026-03-25", status: "upcoming", why: "名片手寫：สนใจ ส่งเมล์" },
     // JND/Chris Chang moved to channel_partners
