@@ -33,7 +33,11 @@ LOCKFILE = os.path.expanduser("~/.transcribe/.lock")
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-API_KEY = "AIzaSyA7hUTVdmhmzgNCZJ-O1pgJYZXrA1dnMLY"
+API_KEY = os.environ.get("GEMINI_API_KEY", "")
+if not API_KEY and __name__ == "__main__":
+    print("ERROR: GEMINI_API_KEY environment variable not set.", flush=True)
+    print("Run: export GEMINI_API_KEY='your-key-here'", flush=True)
+    sys.exit(1)
 MODEL = "gemini-3.1-pro-preview"
 TEMPERATURE = 0.1  # Not 0.0 — allows multilingual code-switching
 MAX_OUTPUT_TOKENS = 65536
