@@ -276,6 +276,19 @@ Timestamp rules:
 Format:
 [HH:MM:SS] **Speaker Name:** their complete utterance until the next person speaks
 
+Domain glossary — use these EXACT spellings when you hear these terms:
+- Fixed asset (NOT "Free asset"), Bill of Materials / BOM, Work order, Subcontract
+- Production line, Quality control / QC, Inventory, Warehouse, Dispatch
+- IoT, eMES, ERP, WMS, WCS, AGV, AMR, SFT, APS, MES, MRP
+- ROI, KPI, BOI, EPE, NDA, IATF, ISO
+- Pallet (NOT "Pellet"), Conveyor, Barcode, Throughput, Downtime
+- Scrap, Rework, Batch, Lot, Forklift, Capacity, Yield
+- Go-live, Phase 1 / Phase 2, Implementation, Deployment
+- Cost center, Profit center, Overhead, Unit cost, BOM cost
+- Cycle time, Lead time, Takt time, OEE, MTBF, MTTR
+- Pick & Pack, FIFO, LIFO, Safety stock, Reorder point
+- Digiwin (鼎捷), Xiangtian (象田), HAIROBOTICS, iRAYPLE, TUSKROBOTS
+
 Rules:
 - Transcribe the ENTIRE recording from beginning to end
 - Do NOT stop early or summarize
