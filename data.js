@@ -142,10 +142,10 @@ const DASHBOARD_DATA = {
       call_summary: "詳細技術討論。7.7米貨架、環氧地坪容差、3度斜坡。Chayut要求英文資料和演示影片。個人Gmail因工作電腦故障。"
     },
     {
-      id: 5, company: "Chia Tai Tarn", person: "Khun Tan", title: "Project Manager",
+      id: 5, company: "Chia Tai (เจียไต๋)", person: "Khun Tan", title: "Project Manager",
       stage: "D", days_at_stage: 0, days_since_contact: 0, value: null, confidence: "warm",
       six_elements: {
-        timeline: { status: false, detail: "客戶未提及Go-Live時程。週三3點僅為初次簡報會議，非上線日期" },
+        timeline: { status: false, detail: "客戶未提及Go-Live時程。今天2PM工廠簡報會議，非上線日期" },
         budget: { status: false, detail: "未知" },
         requirements: { status: "partial", detail: "MES用於生產支援（非WMS — PM已糾正Peter）" },
         decision: { status: "partial", detail: "Khun Tan是PM，但不清楚上面誰核准" },
@@ -153,16 +153,16 @@ const DASHBOARD_DATA = {
         motivation: { status: "partial", detail: "有主動需求在找MES，不是隨便看看" }
       },
       must_act: "partial", must_act_detail: "有主動需求但非做不可理由未明確表述",
-      must_choose_digiwin: "weak", must_choose_detail: "週三會議是建立的機會",
-      next_action: "Confirm Wed 3pm meeting with overseas consultant",
-      pain_points: ["需要MES進行生產支援", "工廠在Samut Sakhon，Peter找不到地址"],
+      must_choose_digiwin: "weak", must_choose_detail: "今天2PM會議是建立的機會",
+      next_action: "2PM factory visit at Chia Tai Omnoi — MES presentation",
+      pain_points: ["需要MES進行生產支援", "工廠在Samut Sakhon (Omnoi)"],
       stakeholders: [
-        { name: "Khun Tan", role: "專案經理", type: "技術聯絡人", notes: "負責生產支援" },
+        { name: "Khun Tan", role: "專案經理", type: "技術聯絡人", notes: "負責生產支援。工廠在Chia Tai Omnoi, Samut Sakhon" },
         { name: "海外顧問", role: "鼎捷產品專家", type: "內部資源", notes: "本週訪泰，行程緊湊" }
       ],
-      industry: "製造業", fit: "HIGH",
-      transcript_date: "2026-03-23",
-      call_summary: "安排簡報。Khun Tan同意週三3點會面。需確認海外顧問時間（瓶頸！）。Tan將提供工廠GPS定位。"
+      industry: "農業/種子/製造", fit: "HIGH",
+      transcript_date: "2026-03-24",
+      call_summary: "公司正名：Chia Tai (เจียไต๋ จำกัด)，泰國農業龍頭。工廠位於Omnoi, Samut Sakhon。網站: chiataigroup.com。Tel: 02-491-8191。今天2PM工廠簡報。"
     },
     // JND/Chris Chang removed from pipeline — he is a potential channel partner, not a deal
     {
@@ -284,7 +284,7 @@ const DASHBOARD_DATA = {
   ],
 
   i_owe: [
-    { what: "Confirm Wed 3pm with consultant", to: "Khun Tan", company: "Chia Tai Tarn", due: "2026-03-23", status: "overdue", why: "會議2天後，顧問即將離開泰國" },
+    { what: "Confirm Wed 3pm with consultant", to: "Khun Tan", company: "Chia Tai", due: "2026-03-23", status: "overdue", why: "會議2天後，顧問即將離開泰國" },
     { what: "Send profile + brochures + video", to: "Chayut", company: "Toyota Tsusho", due: "2026-03-24", status: "due_today", why: "Chayut明確要求英文資料" },
     { what: "Send follow-up email", to: "Yanisa", company: "Mitsuya Limited", due: "2026-03-24", status: "due_today", why: "70分鐘會議中承諾的跟進" },
     { what: "Send intro email", to: "Sirimon", company: "Daisae Metrology", due: "2026-03-25", status: "upcoming", why: "名片手寫：สนใจ ส่งเมล์" },
@@ -295,7 +295,7 @@ const DASHBOARD_DATA = {
   ],
 
   they_owe: [
-    { what: "工廠GPS定位", from: "Khun Tan", company: "Chia Tai Tarn", follow_up: "2026-03-25" },
+    { what: "工廠GPS定位", from: "Khun Tan", company: "Chia Tai", follow_up: "2026-03-25" },
     { what: "審閱資料+加LINE", from: "Chayut", company: "Toyota Tsusho", follow_up: "2026-03-28" },
     { what: "安排與叔叔的會面", from: "Yanisa", company: "Mitsuya Limited", follow_up: "2026-03-30" },
     { what: "透過秘書確認老闆時間", from: "Wisanu", company: "Standard Mfg", follow_up: "2026-03-28" },
@@ -305,7 +305,7 @@ const DASHBOARD_DATA = {
   ],
 
   hit_list: [
-    { rank: 1, action: "Confirm Wed 3pm consultant availability", company: "Chia Tai Tarn", why: "會議2天後。顧問即將離開泰國。延誤=失去窗口", score: 38, type: "call" },
+    { rank: 1, action: "Confirm Wed 3pm consultant availability", company: "Chia Tai", why: "會議2天後。顧問即將離開泰國。延誤=失去窗口", score: 38, type: "call" },
     { rank: 2, action: "Send profile + Xiangtian brochures + video to armstrong.wuu@gmail.com", company: "Toyota Tsusho", why: "逾期承諾。Chayut明確要求資料", score: 32, type: "email" },
     { rank: 3, action: "Prepare BFC proposal (WMS + MES + phased pricing)", company: "BFC", why: "七大痛點今天通話確認，勢頭正熱", score: 28, type: "computer" },
     { rank: 4, action: "Send follow-up email to yanisa@mitsuya.co.th", company: "Mitsuya Limited", why: "70分鐘會議中承諾。汽車零件製造，高適配度", score: 25, type: "email" },
