@@ -314,6 +314,30 @@
             </div>
           </template>
         </div>
+        <!-- Completed actions — collapsible -->
+        <div x-show="doneActions.length > 0" class="mt-4" x-data="{showDone: false}">
+          <button @click="showDone = !showDone" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-[#02D28C]/10 dark:bg-[#02D28C]/10 text-[#02D28C] text-[12px] font-bold cursor-pointer hover:bg-[#02D28C]/20 transition-all min-h-[44px]">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span x-text="'✅ ' + doneActions.length + ' completed'"></span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 ml-auto transition-transform" :class="showDone ? 'rotate-180' : ''"></i>
+          </button>
+          <div x-show="showDone" x-transition.duration.200ms class="mt-2 space-y-1.5">
+            <template x-for="item in doneActions" :key="item.what">
+              <div class="glass rounded-xl border border-[#02D28C]/20 dark:border-[#02D28C]/20 p-3 text-[12px]" style="border-radius:12px">
+                <div class="flex items-start gap-2.5">
+                  <div class="w-5 h-5 rounded-full bg-[#02D28C] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-semibold line-through text-[#444444] dark:text-[#cbd5e1] opacity-70" x-text="item.what"></div>
+                    <div class="text-[11px] text-[#02D28C] mt-0.5" x-text="item.to + ' · ' + item.company"></div>
+                    <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-0.5 opacity-60" x-text="item.why"></div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
       </section>
 
       <!-- RIGHT: TABBED CONTENT — #1 on mobile this comes second -->
@@ -633,6 +657,31 @@
                 <div class="text-[11px] text-[#003CC8] dark:text-[#00E6FF] mt-2"><b>WHY:</b> <span x-text="item.why"></span></div>
               </div>
             </template>
+          </div>
+          <!-- Completed I Owe items -->
+          <div x-show="doneActions.length > 0" class="mt-4" x-data="{showArchive: false}">
+            <button @click="showArchive = !showArchive" class="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-[#02D28C]/10 text-[#02D28C] text-[12px] font-bold cursor-pointer hover:bg-[#02D28C]/20 transition-all min-h-[44px]">
+              <i data-lucide="archive" class="w-4 h-4"></i>
+              <span x-text="'Completed (' + doneActions.length + ')'"></span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 ml-auto transition-transform" :class="showArchive ? 'rotate-180' : ''"></i>
+            </button>
+            <div x-show="showArchive" x-transition.duration.200ms class="mt-2 space-y-1.5">
+              <template x-for="item in doneActions" :key="item.what">
+                <div class="glass rounded-xl border border-[#02D28C]/20 p-3.5" style="border-radius:14px">
+                  <div class="flex items-start gap-2.5">
+                    <div class="w-5 h-5 rounded-full bg-[#02D28C] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="font-semibold text-[13px] line-through opacity-60" x-text="item.what"></div>
+                      <div class="text-[11px] text-[#02D28C] mt-0.5" x-text="item.to + ' · ' + item.company"></div>
+                      <div class="text-[11px] text-[#444444] dark:text-[#cbd5e1] mt-1 opacity-70" x-text="item.why"></div>
+                    </div>
+                    <span class="tag-label px-2 py-0.5 rounded-md bg-[#02D28C]/10 text-[#02D28C]">DONE</span>
+                  </div>
+                </div>
+              </template>
+            </div>
           </div>
         </div>
 
@@ -1232,7 +1281,8 @@
       get due_this_week(){return this.data.i_owe.length},
       get deals_at_d_plus(){return this.data.deals.filter(d=>['D','C2','C1','B','A'].includes(d.stage)).length},
       get auth_warning(){try{const h=(Date.now()-new Date(this.data.generated_at).getTime())/36e5;return h>2?'Data is '+Math.floor(h)+' hours old — run: gws auth login && ./refresh.sh':''}catch(e){return''}},
-      get sortedIOwe(){const o={overdue:0,due_today:1,upcoming:2};return[...this.data.i_owe].sort((a,b)=>(o[a.status]??9)-(o[b.status]??9))},
+      get sortedIOwe(){const o={overdue:0,due_today:1,upcoming:2,done:3};return[...this.data.i_owe].filter(i=>i.status!=='done').sort((a,b)=>(o[a.status]??9)-(o[b.status]??9))},
+      get doneActions(){return this.data.i_owe.filter(i=>i.status==='done')},
 
       dealsInStage(s){
         const cw={hot:3,warm:2,cold:1};
