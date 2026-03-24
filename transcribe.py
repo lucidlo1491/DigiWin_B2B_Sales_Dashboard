@@ -12,6 +12,7 @@ Usage:
 """
 
 import argparse
+import atexit
 import json
 import os
 import re
@@ -20,6 +21,15 @@ import sys
 import time
 from pathlib import Path
 from datetime import datetime
+
+# Force unbuffered output so background runs show progress
+os.environ["PYTHONUNBUFFERED"] = "1"
+
+def log(msg):
+    """Print with flush — always visible, even in background."""
+    print(msg, flush=True)
+
+LOCKFILE = os.path.expanduser("~/.transcribe/.lock")
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -36,6 +46,35 @@ COST_LOG_PATH = os.path.expanduser("~/.transcribe/cost_log.json")
 UPLOAD_CACHE_PATH = os.path.expanduser("~/.transcribe/upload_cache.json")
 
 DEFAULT_SPEAKER = "Peter Lo"
+
+
+# ─── Lockfile (prevent multiple instances) ────────────────────────────────────
+
+def acquire_lock():
+    """Prevent multiple transcribe.py from running simultaneously."""
+    os.makedirs(os.path.dirname(LOCKFILE), exist_ok=True)
+    if os.path.exists(LOCKFILE):
+        try:
+            with open(LOCKFILE) as f:
+                pid = int(f.read().strip())
+            # Check if that process is still alive
+            os.kill(pid, 0)
+            log(f"  ERROR: Another transcribe.py is already running (PID {pid})")
+            log(f"  If this is stale, delete {LOCKFILE}")
+            sys.exit(1)
+        except (ProcessLookupError, ValueError):
+            pass  # Stale lock, proceed
+
+    with open(LOCKFILE, "w") as f:
+        f.write(str(os.getpid()))
+
+
+def release_lock():
+    """Remove lockfile on exit."""
+    try:
+        os.unlink(LOCKFILE)
+    except:
+        pass
 
 # ─── Contacts ─────────────────────────────────────────────────────────────────
 
@@ -99,7 +138,7 @@ def get_audio_duration(filepath):
         )
         return float(result.stdout.strip())
     except Exception as e:
-        print(f"  WARN: Could not get duration: {e}")
+        log(f"  WARN: Could not get duration: {e}")
         return None
 
 
@@ -182,13 +221,13 @@ def upload_to_gemini(filepath):
             # Verify the cached file still exists on Gemini
             status = client.files.get(name=cached["name"])
             if status.state.name == "ACTIVE":
-                print(f"  Using cached upload: {cached['uri']} (skipping re-upload)")
+                log(f"  Using cached upload: {cached['uri']} (skipping re-upload)")
                 return status
         except:
             pass  # Cache stale, re-upload
 
     client = genai.Client(api_key=API_KEY)
-    print(f"  Uploading {Path(filepath).name} ({file_size / 1e6:.1f}MB)...")
+    log(f"  Uploading {Path(filepath).name} ({file_size / 1e6:.1f}MB)...")
 
     uploaded = client.files.upload(
         file=filepath,
@@ -199,7 +238,7 @@ def upload_to_gemini(filepath):
     for _ in range(30):
         status = client.files.get(name=uploaded.name)
         if status.state.name == "ACTIVE":
-            print(f"  Upload complete: {uploaded.uri}")
+            log(f"  Upload complete: {uploaded.uri}")
             # Cache it
             cache[cache_key] = {"uri": uploaded.uri, "name": uploaded.name, "timestamp": datetime.now().isoformat()}
             save_upload_cache(cache)
@@ -252,7 +291,7 @@ def transcribe_audio(uploaded_file, prompt):
 
     client = genai.Client(api_key=API_KEY)
 
-    print(f"  Transcribing with {MODEL}...")
+    log(f"  Transcribing with {MODEL}...")
     start = time.time()
 
     response = client.models.generate_content(
@@ -279,9 +318,9 @@ def transcribe_audio(uploaded_file, prompt):
             "output_tokens": getattr(response.usage_metadata, 'candidates_token_count', 0),
         }
 
-    print(f"  Done in {elapsed:.0f}s | {len(text):,} chars | Finish: {finish_reason}")
+    log(f"  Done in {elapsed:.0f}s | {len(text):,} chars | Finish: {finish_reason}")
     if usage:
-        print(f"  Tokens — in: {usage.get('input_tokens', '?'):,} | out: {usage.get('output_tokens', '?'):,}")
+        log(f"  Tokens — in: {usage.get('input_tokens', '?'):,} | out: {usage.get('output_tokens', '?'):,}")
 
     return text, finish_reason, elapsed, usage
 
@@ -391,9 +430,9 @@ def upload_google_doc(markdown_text, title, folder_id=None):
         output = result.stdout
         if '"id"' in output:
             doc_id = json.loads(output.split("keyring")[-1] if "keyring" in output else output)["id"]
-            print(f"  Google Doc: https://docs.google.com/document/d/{doc_id}")
+            log(f"  Google Doc: https://docs.google.com/document/d/{doc_id}")
     except Exception as e:
-        print(f"  WARN: Google Doc upload failed: {e}")
+        log(f"  WARN: Google Doc upload failed: {e}")
     finally:
         os.unlink(tmp_path)
 
@@ -431,18 +470,18 @@ def transcribe_file(filepath, args, contacts):
     """Main pipeline for a single file."""
     filepath = os.path.abspath(filepath)
     filename = Path(filepath).name
-    print(f"\n{'=' * 60}")
-    print(f"  Transcribing: {filename}")
-    print(f"{'=' * 60}")
+    log(f"\n{'=' * 60}")
+    log(f"  Transcribing: {filename}")
+    log(f"{'=' * 60}")
 
     # 1. Audio analysis
     duration = get_audio_duration(filepath)
     if duration:
         duration_min = duration / 60
-        print(f"  Duration: {duration_min:.1f} minutes")
+        log(f"  Duration: {duration_min:.1f} minutes")
     else:
         duration_min = 0
-        print(f"  Duration: unknown (proceeding anyway)")
+        log(f"  Duration: unknown (proceeding anyway)")
 
     # 2. Resolve speakers
     speakers = get_speakers(args, contacts)
@@ -453,7 +492,7 @@ def transcribe_file(filepath, args, contacts):
     needs_chunking = duration_min > MAX_SINGLE_CALL_MINUTES
 
     if needs_chunking:
-        print(f"  Audio is {duration_min:.0f} min (>{MAX_SINGLE_CALL_MINUTES}) — splitting into chunks")
+        log(f"  Audio is {duration_min:.0f} min (>{MAX_SINGLE_CALL_MINUTES}) — splitting into chunks")
         chunks = split_audio(filepath, duration)
         all_text = []
 
@@ -479,16 +518,16 @@ def transcribe_file(filepath, args, contacts):
         full_text, finish_reason, elapsed, usage = transcribe_audio(uploaded, prompt)
 
         if finish_reason == "MAX_TOKENS":
-            print(f"  WARNING: Hit token limit! Transcript may be incomplete.")
+            log(f"  WARNING: Hit token limit! Transcript may be incomplete.")
 
     # 4. QA Validation
-    print(f"\n  Running QA checks...")
+    log(f"\n  Running QA checks...")
     passed, issues = validate_transcript(full_text, duration)
     if passed:
-        print(f"  ✅ QA PASSED — all checks clean")
+        log(f"  ✅ QA PASSED — all checks clean")
     else:
         for issue in issues:
-            print(f"  ⚠️  {issue}")
+            log(f"  ⚠️  {issue}")
 
     # 5. Format output
     title = Path(filepath).stem.replace("_", " ")
@@ -505,7 +544,7 @@ def transcribe_file(filepath, args, contacts):
     output_path = args.output or filepath.replace(".m4a", "_transcript.md").replace(".mp3", "_transcript.md")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(markdown)
-    print(f"  Saved: {output_path}")
+    log(f"  Saved: {output_path}")
 
     # 7. Google Doc (default unless --local-only)
     if not args.local_only:
@@ -546,6 +585,10 @@ Examples:
 
     args = parser.parse_args()
 
+    # Lockfile — prevent multiple instances
+    acquire_lock()
+    atexit.register(release_lock)
+
     # Load contacts
     contacts = load_contacts()
 
@@ -553,23 +596,23 @@ Examples:
     results = []
     for filepath in args.files:
         if not os.path.exists(filepath):
-            print(f"  ERROR: File not found: {filepath}")
+            log(f"  ERROR: File not found: {filepath}")
             continue
         try:
             output, passed, issues = transcribe_file(filepath, args, contacts)
             results.append({"file": filepath, "output": output, "passed": passed, "issues": issues})
         except Exception as e:
-            print(f"  ERROR: {e}")
+            log(f"  ERROR: {e}")
             results.append({"file": filepath, "output": None, "passed": False, "issues": [str(e)]})
 
     # Summary
     if len(results) > 1:
-        print(f"\n{'=' * 60}")
-        print(f"  BATCH SUMMARY: {len(results)} files")
-        print(f"{'=' * 60}")
+        log(f"\n{'=' * 60}")
+        log(f"  BATCH SUMMARY: {len(results)} files")
+        log(f"{'=' * 60}")
         for r in results:
             status = "✅" if r["passed"] else "⚠️"
-            print(f"  {status} {Path(r['file']).name} → {r['output'] or 'FAILED'}")
+            log(f"  {status} {Path(r['file']).name} → {r['output'] or 'FAILED'}")
 
 
 if __name__ == "__main__":
