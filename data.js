@@ -82,8 +82,11 @@ const DASHBOARD_DATA = {
       next_action: "Call Petch Wednesday to schedule presentation",
       pain_points: ["新建工廠完全沒有MES系統", "比利時管理層忙碌經常出差"],
       stakeholders: [
-        { name: "Petch", role: "建廠工程師", type: "聯絡窗口", notes: "暱稱Nu" },
+        { name: "Petch Janbanjong", role: "建廠工程師", type: "聯絡窗口", notes: "暱稱Nu。Email: petch@impextraco.com" },
         { name: "比利時管理層", role: "決策者", type: "Economic Buyer", notes: "講英文，經常出差" }
+      ],
+      contacts: [
+        { name: "Petch Janbanjong", phone: "+66954082233", email: "petch@impextraco.com", line: null, role: "建廠工程師" }
       ],
       industry: "動物飼料/飼料原料", fit: "HIGH",
       transcript_date: "2026-03-23",
