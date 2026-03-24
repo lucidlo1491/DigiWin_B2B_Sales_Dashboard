@@ -370,8 +370,57 @@ def validate_transcript(text, audio_duration_sec):
         if gap > 120:
             issues.append(f"COVERAGE GAP: Last timestamp at {last_ts // 60}:{last_ts % 60:02d}, audio is {audio_duration_sec // 60:.0f}:{int(audio_duration_sec) % 60:02d} ({gap:.0f}s missing)")
 
-    passed = len(issues) == 0
-    return passed, issues
+    # 5. Domain glossary — catch common Gemini mishearings of ERP/MES/manufacturing terms
+    KNOWN_TERMS = {
+        # Correct term → common Gemini errors
+        "Fixed asset": ["Free asset", "Freeze asset", "Fix asset"],
+        "Fixed cost": ["Free cost", "Freeze cost"],
+        "Bill of Materials": ["Bill of Material", "Bill of Minerals"],
+        "BOM": ["BOMB", "BOOM"],
+        "Work order": ["Walk order", "Word order"],
+        "Subcontract": ["Sub contract", "Subtract"],
+        "Production line": ["Production lying", "Production lion"],
+        "Quality control": ["Quality controlled", "Quality controller"],
+        "Inventory": ["In ventory", "Inventor"],
+        "Warehouse": ["War house", "Wear house"],
+        "Dispatch": ["This patch", "Dis patch"],
+        "IoT": ["I OT", "IOT", "I.O.T"],
+        "eMES": ["E-MES", "EMES", "e mess", "E mess"],
+        "ERP": ["E.R.P", "EAP"],
+        "WMS": ["W.M.S", "WMF"],
+        "AGV": ["A.G.V", "ABV", "AGB"],
+        "SFT": ["S.F.T", "SFC"],
+        "APS": ["A.P.S", "APC"],
+        "ROI": ["R.O.I", "ROY"],
+        "KPI": ["K.P.I", "KBI"],
+        "Pallet": ["Pellet", "Palette"],
+        "Conveyor": ["Convey", "Con vayer"],
+        "Barcode": ["Bar code", "Bark code"],
+        "Throughput": ["Through put", "Threw put"],
+        "Downtime": ["Down time", "Dawn time"],
+        "Scrap": ["Scrub", "Strap"],
+        "Rework": ["Re work", "Reward"],
+        "Batch": ["Badge", "Bash"],
+        "Forklift": ["Fork lift", "Four clip"],
+        "BOI": ["B.O.I", "BOY", "Boy"],
+        "EPE": ["E.P.E", "EPP"],
+    }
+
+    term_warnings = []
+    text_lower = text.lower()
+    for correct, errors in KNOWN_TERMS.items():
+        for error in errors:
+            if error.lower() in text_lower and correct.lower() not in text_lower:
+                term_warnings.append(f"TERM: '{error}' found — did you mean '{correct}'?")
+            elif error.lower() in text_lower:
+                term_warnings.append(f"TERM WARNING: '{error}' found alongside '{correct}' — verify which is correct")
+
+    if term_warnings:
+        for w in term_warnings[:10]:  # Cap at 10 warnings
+            issues.append(w)
+
+    passed = len([i for i in issues if not i.startswith("TERM WARNING")]) == 0
+    return passed, issues, term_warnings
 
 
 # ─── Output Formatting ────────────────────────────────────────────────────────
@@ -522,9 +571,13 @@ def transcribe_file(filepath, args, contacts):
 
     # 4. QA Validation
     log(f"\n  Running QA checks...")
-    passed, issues = validate_transcript(full_text, duration)
-    if passed:
+    passed, issues, term_warnings = validate_transcript(full_text, duration)
+    if passed and not term_warnings:
         log(f"  ✅ QA PASSED — all checks clean")
+    elif passed and term_warnings:
+        log(f"  ✅ QA PASSED — but {len(term_warnings)} terminology warnings:")
+        for w in term_warnings:
+            log(f"     📝 {w}")
     else:
         for issue in issues:
             log(f"  ⚠️  {issue}")
