@@ -294,29 +294,17 @@ def build_prompt(language, speakers_text, duration_min, offset_min=0):
     if offset_min > 0:
         offset_note = f"\n\nIMPORTANT: This is a segment starting at {offset_min:.0f} minutes into the full recording. Add {offset_min:.0f} minutes to all timestamps. The first timestamp should be approximately [{int(offset_min):02d}:00:00]."
 
-    return f"""Transcribe this entire {duration_min:.0f}-minute audio recording verbatim from start to finish.
+    # Speakers context
+    if speakers_text and "unknown" not in speakers_text.lower():
+        speaker_line = f"\n\n{speakers_text}"
+    else:
+        speaker_line = ""
 
-Timestamp rules:
-- Add [HH:MM:SS] ONLY when the speaker changes or after a significant pause
-- Do NOT add timestamps every few seconds — only at speaker turns or pauses
-- If one speaker talks for more than 3 minutes continuously, insert a timestamp anyway for navigation
-- Each speaker turn gets ONE timestamp at the start
-
-{speakers_text}
+    return f"""Transcribe this audio recording with speaker identification and timestamps.{speaker_line}
 
 {lang_instruction}
 
-Format:
-[HH:MM:SS] **Speaker Name:** their complete utterance until the next person speaks
-
-{_load_glossary_for_prompt()}
-
-Rules:
-- Transcribe the ENTIRE recording from beginning to end
-- Do NOT stop early or summarize
-- Do NOT create repeated/looping text — if the conversation ends, stop transcribing
-- If audio is unintelligible, write [inaudible]
-- Preserve filler words and natural speech patterns{offset_note}"""
+Provide a complete verbatim transcript with [HH:MM:SS] timestamps at each speaker change or pause, followed by an English summary of key points discussed.{offset_note}"""
 
 
 def transcribe_audio(uploaded_file, prompt):
@@ -595,17 +583,28 @@ def transcribe_file(filepath, args, contacts):
     }
     markdown = format_markdown(full_text, metadata)
 
-    # 6. Save markdown
+    # 6. Save markdown (this is the SINGLE SOURCE OF TRUTH — never delete)
     output_path = args.output or filepath.replace(".m4a", "_transcript.md").replace(".mp3", "_transcript.md")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(markdown)
-    log(f"  Saved: {output_path}")
+    log(f"  Saved markdown: {output_path}")
 
-    # 7. Google Doc (default unless --local-only)
+    # 7. Upload markdown to Google Drive (source of truth lives on Drive)
+    drive_folder = "1ZSQ2A1SSFBXkmUMCwdaLNT4ZCeLBEm_h"  # Audio_Recordings
+    if not args.local_only:
+        try:
+            md_name = Path(output_path).name
+            cmd = f'gws drive files create --json \'{{"name":"{md_name}","parents":["{drive_folder}"]}}\' --upload "{output_path}" --upload-content-type "text/markdown"'
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=60)
+            if '"id"' in result.stdout:
+                log(f"  Uploaded markdown to Drive: {md_name}")
+        except Exception as e:
+            log(f"  WARN: Markdown upload failed: {e}")
+
+    # 8. Google Doc (formatted output FROM the markdown — for people who don't read .md)
     if not args.local_only:
         doc_title = f"{title} — Transcript"
-        # Audio_Recordings folder ID
-        upload_google_doc(markdown, doc_title, folder_id="1ZSQ2A1SSFBXkmUMCwdaLNT4ZCeLBEm_h")
+        upload_google_doc(markdown, doc_title, folder_id=drive_folder)
 
     # 8. Log cost
     if not needs_chunking:
